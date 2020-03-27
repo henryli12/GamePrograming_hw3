@@ -139,6 +139,8 @@ export class WebGLGameRenderingSystem {
         // CLEAR THE CANVAS
         this.webGL.clear(this.webGL.COLOR_BUFFER_BIT | this.webGL.DEPTH_BUFFER_BIT);
 
+        this.webGL.viewport(viewport.getX() * -1, viewport.getY(), this.canvasWidth, this.canvasHeight);
+
         // RENDER THE TILED LAYER FIRST
         this.tiledLayerRenderer.render(this.webGL, viewport, tiledLayers);
 

@@ -23,14 +23,26 @@ game.getResourceManager().loadScene(DESERT_SCENE_PATH, game.getSceneGraph(), gam
     var world = game.getSceneGraph().getTiledLayers();
     var worldWidth = world[0].getColumns() * world[0].getTileSet().getTileWidth();
     var worldHeight = world[0].getRows() * world[0].getTileSet().getTileHeight();
-    for (var i = 0; i < 100; i++) {
-        var type = game.getResourceManager().getAnimatedSpriteType("RED_CIRCLE_MAN");
-        var randomSprite = new AnimatedSprite_1.AnimatedSprite(type, "FORWARD");
+    for (var i = 0; i < 50; i++) {
+        var _type = game.getResourceManager().getAnimatedSpriteType("STICK_BUG");
+        var _randomSprite = new AnimatedSprite_1.AnimatedSprite(_type, "WALKING");
         var randomX = Math.random() * worldWidth;
         var randomY = Math.random() * worldHeight;
-        randomSprite.getPosition().set(randomX, randomY, 0, 1);
-        game.getSceneGraph().addAnimatedSprite(randomSprite);
+        _randomSprite.getPosition().set(randomX, randomY, 0, 1);
+        game.getSceneGraph().addAnimatedSprite(_randomSprite);
     }
+    for (var _i = 0; _i < 50; _i++) {
+        var _type2 = game.getResourceManager().getAnimatedSpriteType("CAMEL_SPIDER");
+        var _randomSprite2 = new AnimatedSprite_1.AnimatedSprite(_type2, "WALKING");
+        var _randomX = Math.random() * worldWidth;
+        var _randomY = Math.random() * worldHeight;
+        _randomSprite2.getPosition().set(_randomX, _randomY, 0, 1);
+        game.getSceneGraph().addAnimatedSprite(_randomSprite2);
+    }
+    var type = game.getResourceManager().getAnimatedSpriteType("MANTIS");
+    var randomSprite = new AnimatedSprite_1.AnimatedSprite(type, "WALKING");
+    randomSprite.getPosition().set(200, 200, 0, 1);
+    game.getSceneGraph().addAnimatedSprite(randomSprite);
     // NOW ADD TEXT RENDERING. WE ARE GOING TO RENDER 3 THINGS:
     // NUMBER OF SPRITES IN THE SCENE
     // LOCATION IN GAME WORLD OF VIEWPORT
@@ -1867,6 +1879,7 @@ var WebGLGameRenderingSystem = function () {
         value: function render(viewport, tiledLayers, visibleSprites) {
             // CLEAR THE CANVAS
             this.webGL.clear(this.webGL.COLOR_BUFFER_BIT | this.webGL.DEPTH_BUFFER_BIT);
+            this.webGL.viewport(viewport.getX() * -1, viewport.getY(), this.canvasWidth, this.canvasHeight);
             // RENDER THE TILED LAYER FIRST
             this.tiledLayerRenderer.render(this.webGL, viewport, tiledLayers);
             // RENDER THE SPRITES ON ONE CANVAS
@@ -2902,9 +2915,12 @@ var UIController = function UIController(canvasId, initScene) {
     _classCallCheck(this, UIController);
 
     this.mouseDownHandler = function (event) {
+        var viewport = _this.scene.getViewport();
+        var x = viewport.getX();
+        var y = viewport.getY();
         var mousePressX = event.clientX;
         var mousePressY = event.clientY;
-        var sprite = _this.scene.getSpriteAt(mousePressX, mousePressY);
+        var sprite = _this.scene.getSpriteAt(mousePressX + x, mousePressY + y);
         console.log("mousePressX: " + mousePressX);
         console.log("mousePressY: " + mousePressY);
         console.log("sprite: " + sprite);
@@ -2923,6 +2939,51 @@ var UIController = function UIController(canvasId, initScene) {
     this.mouseUpHandler = function (event) {
         _this.spriteToDrag = null;
     };
+    this.keyDownHandler = function (event) {
+        var viewport = _this.scene.getViewport();
+        var x = viewport.getX();
+        var y = viewport.getY();
+        var vheight = viewport.getHeight();
+        var vwidth = viewport.getWidth();
+        var world = _this.scene.getTiledLayers();
+        var worldWidth = world[0].getColumns() * world[0].getTileSet().getTileWidth();
+        var worldHeight = world[0].getRows() * world[0].getTileSet().getTileHeight();
+        var maxX = worldWidth - vwidth;
+        var maxY = worldHeight - vheight;
+        if (event.keyCode == 65) {
+            console.log('left');
+            var newX = x - 10;
+            if (newX < 0) {
+                viewport.setPosition(0, y);
+            } else {
+                viewport.setPosition(newX, y);
+            }
+        } else if (event.keyCode == 83) {
+            console.log('down');
+            var newY = y + 10;
+            if (newY > maxY) {
+                viewport.setPosition(x, maxY);
+            } else {
+                viewport.setPosition(x, newY);
+            }
+        } else if (event.keyCode == 68) {
+            console.log('right');
+            var newX = x + 10;
+            if (newX > maxX) {
+                viewport.setPosition(maxX, y);
+            } else {
+                viewport.setPosition(newX, y);
+            }
+        } else if (event.keyCode == 87) {
+            console.log('up');
+            var newY = y - 10;
+            if (newY < 0) {
+                viewport.setPosition(x, 0);
+            } else {
+                viewport.setPosition(x, newY);
+            }
+        }
+    };
     this.spriteToDrag = null;
     this.scene = initScene;
     this.dragOffsetX = -1;
@@ -2931,6 +2992,7 @@ var UIController = function UIController(canvasId, initScene) {
     canvas.addEventListener("mousedown", this.mouseDownHandler);
     canvas.addEventListener("mousemove", this.mouseMoveHandler);
     canvas.addEventListener("mouseup", this.mouseUpHandler);
+    document.addEventListener("keydown", this.keyDownHandler);
 };
 
 exports.UIController = UIController;

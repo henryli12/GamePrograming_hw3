@@ -20,12 +20,16 @@ export class UIController {
         canvas.addEventListener("mousedown", this.mouseDownHandler);
         canvas.addEventListener("mousemove", this.mouseMoveHandler);
         canvas.addEventListener("mouseup", this.mouseUpHandler);
+        document.addEventListener("keydown", this.keyDownHandler);
     }
 
     public mouseDownHandler = (event : MouseEvent) : void => {
+        var viewport = this.scene.getViewport();
+        var x = viewport.getX();
+        var y = viewport.getY();
         let mousePressX : number = event.clientX;
         let mousePressY : number = event.clientY;
-        let sprite : AnimatedSprite = this.scene.getSpriteAt(mousePressX, mousePressY);
+        let sprite : AnimatedSprite = this.scene.getSpriteAt(mousePressX + x, mousePressY + y);
         console.log("mousePressX: " + mousePressX);
         console.log("mousePressY: " + mousePressY);
         console.log("sprite: " + sprite);
@@ -48,5 +52,52 @@ export class UIController {
 
     public mouseUpHandler = (event : MouseEvent) : void => {
         this.spriteToDrag = null;
+    }
+
+    public keyDownHandler = (event : KeyboardEvent) : void => {
+        var viewport = this.scene.getViewport();
+        var x = viewport.getX();
+        var y = viewport.getY();
+        var vheight = viewport.getHeight();
+        var vwidth = viewport.getWidth();
+        var world = this.scene.getTiledLayers();
+        var worldWidth : number = world[0].getColumns() * world[0].getTileSet().getTileWidth();
+        var worldHeight : number = world[0].getRows() * world[0].getTileSet().getTileHeight();
+        var maxX = worldWidth - vwidth;
+        var maxY = worldHeight - vheight;
+        if (event.keyCode == 65){
+            console.log('left')
+            var newX = x - 10;
+            if(newX < 0){
+                viewport.setPosition(0, y);
+            }else{
+                viewport.setPosition(newX, y);
+            }
+        }else if (event.keyCode == 83){
+            console.log('down');
+            var newY = y + 10;
+            if(newY > maxY){
+                viewport.setPosition(x, maxY);
+            }else{
+                viewport.setPosition(x, newY);
+            }
+        }else if (event.keyCode == 68){
+            console.log('right');
+            var newX = x + 10;
+            if(newX > maxX){
+                viewport.setPosition(maxX, y);
+            }else{
+                viewport.setPosition(newX, y);
+            }
+        }else if (event.keyCode == 87){
+            console.log('up');
+            var newY = y - 10;
+            if(newY < 0){
+                viewport.setPosition(x, 0);
+            }else{
+                viewport.setPosition(x, newY);
+            }
+        }
+
     }
 }
