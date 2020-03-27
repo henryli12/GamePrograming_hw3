@@ -42,7 +42,7 @@ game.getResourceManager().loadScene(DESERT_SCENE_PATH, game.getSceneGraph(), gam
     var type = game.getResourceManager().getAnimatedSpriteType("MANTIS");
     var randomSprite = new AnimatedSprite_1.AnimatedSprite(type, "WALKING");
     randomSprite.getPosition().set(200, 200, 0, 1);
-    game.getSceneGraph().addAnimatedSprite(randomSprite);
+    game.getSceneGraph().setMainSprite(randomSprite);
     // NOW ADD TEXT RENDERING. WE ARE GOING TO RENDER 3 THINGS:
     // NUMBER OF SPRITES IN THE SCENE
     // LOCATION IN GAME WORLD OF VIEWPORT
@@ -2297,6 +2297,17 @@ var SceneGraph = function () {
             this.animatedSprites.push(sprite);
         }
     }, {
+        key: "setMainSprite",
+        value: function setMainSprite(sprite) {
+            this.mainSprite = sprite;
+            this.animatedSprites.push(sprite);
+        }
+    }, {
+        key: "getMainSprite",
+        value: function getMainSprite() {
+            return this.mainSprite;
+        }
+    }, {
         key: "getSpriteAt",
         value: function getSpriteAt(testX, testY) {
             var _iteratorNormalCompletion = true;
@@ -2939,6 +2950,13 @@ var UIController = function UIController(canvasId, initScene) {
     this.mouseUpHandler = function (event) {
         _this.spriteToDrag = null;
     };
+    this.moveMainHandler = function (event) {
+        var main = _this.scene.getMainSprite();
+        if (main == null) return;
+        var mousePressX = event.clientX;
+        var mousePressY = event.clientY;
+        main.getPosition().set(mousePressX - 64, mousePressY, 0, 1);
+    };
     this.keyDownHandler = function (event) {
         var viewport = _this.scene.getViewport();
         var x = viewport.getX();
@@ -2953,6 +2971,9 @@ var UIController = function UIController(canvasId, initScene) {
         if (event.keyCode == 65) {
             console.log('left');
             var newX = x - 10;
+            if (vwidth >= worldWidth) {
+                return;
+            }
             if (newX < 0) {
                 viewport.setPosition(0, y);
             } else {
@@ -2968,19 +2989,22 @@ var UIController = function UIController(canvasId, initScene) {
             }
         } else if (event.keyCode == 68) {
             console.log('right');
-            var newX = x + 10;
-            if (newX > maxX) {
+            var _newX = x + 10;
+            if (vwidth >= worldWidth) {
+                return;
+            }
+            if (_newX > maxX) {
                 viewport.setPosition(maxX, y);
             } else {
-                viewport.setPosition(newX, y);
+                viewport.setPosition(_newX, y);
             }
         } else if (event.keyCode == 87) {
             console.log('up');
-            var newY = y - 10;
-            if (newY < 0) {
+            var _newY = y - 10;
+            if (_newY < 0) {
                 viewport.setPosition(x, 0);
             } else {
-                viewport.setPosition(x, newY);
+                viewport.setPosition(x, _newY);
             }
         }
     };
@@ -2992,6 +3016,7 @@ var UIController = function UIController(canvasId, initScene) {
     canvas.addEventListener("mousedown", this.mouseDownHandler);
     canvas.addEventListener("mousemove", this.mouseMoveHandler);
     canvas.addEventListener("mouseup", this.mouseUpHandler);
+    canvas.addEventListener("mousemove", this.moveMainHandler);
     document.addEventListener("keydown", this.keyDownHandler);
 };
 

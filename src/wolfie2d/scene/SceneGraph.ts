@@ -9,6 +9,7 @@ export class SceneGraph {
     // SORTED OR IN ANY PARTICULAR ORDER. NOTE THAT ANIMATED SPRITES
     // ARE SCENE OBJECTS
     private animatedSprites : Array<AnimatedSprite>;
+    private mainSprite : AnimatedSprite;
 
     // SET OF VISIBLE OBJECTS, NOTE THAT AT THE MOMENT OUR
     // SCENE GRAPH IS QUITE SIMPLE, SO THIS IS THE SAME AS
@@ -80,6 +81,14 @@ export class SceneGraph {
         this.animatedSprites.push(sprite);
     }
 
+    public setMainSprite(sprite : AnimatedSprite) : void {
+        this.mainSprite = sprite;
+        this.animatedSprites.push(sprite);
+    }
+
+    public getMainSprite() : AnimatedSprite {
+        return this.mainSprite;
+    }
     public getSpriteAt(testX : number, testY : number) : AnimatedSprite {
         for (let sprite of this.animatedSprites) {
             if (sprite.contains(testX, testY))

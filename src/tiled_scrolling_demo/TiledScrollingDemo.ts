@@ -47,7 +47,7 @@ game.getResourceManager().loadScene(DESERT_SCENE_PATH,
     let type : AnimatedSpriteType = game.getResourceManager().getAnimatedSpriteType("MANTIS");
     let randomSprite : AnimatedSprite = new AnimatedSprite(type, "WALKING");
     randomSprite.getPosition().set(200, 200, 0, 1);
-    game.getSceneGraph().addAnimatedSprite(randomSprite);
+    game.getSceneGraph().setMainSprite(randomSprite);
 
     // NOW ADD TEXT RENDERING. WE ARE GOING TO RENDER 3 THINGS:
         // NUMBER OF SPRITES IN THE SCENE
