@@ -115,11 +115,21 @@ export class SceneGraph {
     public scope() : Array<SceneObject> {
         // CLEAR OUT THE OLD
         this.visibleSet = [];
-
+        let minx : number = this.viewport.getX() - 120;
+        let miny : number = this.viewport.getY() - 120;
+        let maxx : number = this.viewport.getWidth() + this.viewport.getX();
+        let maxy : number = this.viewport.getHeight() + this.viewport.getY();
         // PUT ALL THE SCENE OBJECTS INTO THE VISIBLE SET
+        let x : number = 0;
+        let y : number = 0;
         for (let sprite of this.animatedSprites) {
-            this.visibleSet.push(sprite);
+            x = sprite.getPosition().getX();
+            y = sprite.getPosition().getY();
+            if((x < maxx) && (x > minx) && (y < maxy) && (y > miny)){
+                this.visibleSet.push(sprite);
+            }
         }
+
 
         return this.visibleSet;
     }

@@ -1,6 +1,6 @@
 import {SceneGraph} from '../scene/SceneGraph'
 
-class GamePhysics {
+export class GamePhysics {
     constructor() {
 
     }
@@ -10,5 +10,7 @@ class GamePhysics {
         // BUT MAKE SURE TO PERFORM COLLISION DETECTION AS WELL
         // NOTE, FOR THIS YOU SHOULD MAKE SURE EACH SCENE OBJECT
         // HAS A BOUNDING VOLUME LIKE EITHER AN AABB OR A CIRCLE
+        let main = sceneGraph.getMainSprite();
+        // console.log(main.getPosition());
     }
 }

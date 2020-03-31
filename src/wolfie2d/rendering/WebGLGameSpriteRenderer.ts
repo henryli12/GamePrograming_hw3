@@ -4,6 +4,7 @@ import {AnimatedSprite} from '../scene/sprite/AnimatedSprite'
 import {AnimatedSpriteType} from '../scene/sprite/AnimatedSpriteType'
 import {WebGLGameTexture} from './WebGLGameTexture'
 import {Viewport} from '../scene/Viewport'
+import { Vector3 } from '../math/Vector3'
 
 export class WebGLGameSpriteRenderer extends WebGLGameRenderingComponent {
 
@@ -49,15 +50,19 @@ export class WebGLGameSpriteRenderer extends WebGLGameRenderingComponent {
         let spriteType : AnimatedSpriteType = sprite.getSpriteType();
         let texture : WebGLGameTexture = spriteType.getSpriteSheetTexture();
 
+        let viewportX : number = viewport.getX();
+        let viewportY : number = viewport.getY();
+
         // CALCULATE HOW MUCH TO TRANSLATE THE QUAD PER THE SPRITE POSITION
         let spriteWidth : number = spriteType.getSpriteWidth();
         let spriteHeight : number = spriteType.getSpriteHeight();
-        let spriteXInPixels : number = sprite.getPosition().getX() + (spriteWidth/2);
-        let spriteYInPixels : number = sprite.getPosition().getY() + (spriteHeight/2);
+        let spriteXInPixels : number = sprite.getPosition().getX() + (spriteWidth/2) - viewportX;
+        let spriteYInPixels : number = sprite.getPosition().getY() + (spriteHeight/2) - viewportY;
         let spriteXTranslate : number = (spriteXInPixels - (canvasWidth/2))/(canvasWidth/2);
         let spriteYTranslate : number = (spriteYInPixels - (canvasHeight/2))/(canvasHeight/2);
         this.meshTranslate.setX(spriteXTranslate);
         this.meshTranslate.setY(-spriteYTranslate);
+        // this.meshRotate.setX(1);
 
         // CALCULATE HOW MUCH TO SCALE THE QUAD PER THE SPRITE SIZE
         let defaultWidth : number = canvasWidth;

@@ -3,6 +3,7 @@
  */
 import {AnimatedSprite} from "../scene/sprite/AnimatedSprite"
 import {SceneGraph} from "../scene/SceneGraph"
+import { Viewport } from "../scene/Viewport";
 
 export class UIController {
     private spriteToDrag : AnimatedSprite;
@@ -58,12 +59,16 @@ export class UIController {
     public moveMainHandler = (event : MouseEvent) : void => {
         let main = this.scene.getMainSprite();
         if(main == null) return;
+        let viewport : Viewport = this.scene.getViewport();
+        let x = viewport.getX();
+        let y = viewport.getY();
         let mousePressX : number = event.clientX;
         let mousePressY : number = event.clientY;
-        main.getPosition().set(mousePressX - 64, mousePressY, 0, 1);
+        main.getPosition().set(mousePressX - 64 + x, mousePressY + y, 0, 1);
     }
 
     public keyDownHandler = (event : KeyboardEvent) : void => {
+        let main = this.scene.getMainSprite();
         let viewport = this.scene.getViewport();
         let x = viewport.getX();
         let y = viewport.getY();
