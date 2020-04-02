@@ -10,35 +10,23 @@ export class AnimatedSprite extends SceneObject {
     private state : string;
     private animationFrameIndex : number;
     private frameCounter : number;
-    private type: string;
     private angle: number;
     private targetX : number;
     private targetY : number;
     private behavior : Behavior;
     
-    public constructor(initSpriteType : AnimatedSpriteType, initState : string, type : string) {
+    public constructor(initSpriteType : AnimatedSpriteType, initState : string) {
         super();
         this.spriteType = initSpriteType;
-        this.type = type;
         
         // START RESET
         this.state = initState;
         this.animationFrameIndex = 0;
         this.frameCounter = 0;
         
-        this.angle = 1000;
         this.targetX = -1;
         this.targetY = -1;
-        if(type !== "MANTIS"){
-            this.randomAngle();
-        }
-        if(this.type === "MANTIS"){
-            this.behavior = new MainCharacterBehavior(this);
-        }else if(this.type === "STICKY BUG"){
-            this.behavior = new EnemyBehavior(this);
-        }else if(this.type === "CAMEL SPIDER"){
-            this.behavior = new PatrolBehavoir(this);
-        }
+        this.randomAngle();
     }
 
     public getAnimationFrameIndex() : number {
@@ -56,9 +44,6 @@ export class AnimatedSprite extends SceneObject {
     public setTarget(x : number, y : number){
         this.targetX = x;
         this.targetY = y;
-    }
-    public getType() : string {
-        return this.type;
     }
 
     public getAngle() : number {
@@ -89,63 +74,11 @@ export class AnimatedSprite extends SceneObject {
     
     public randomAngle() : void {
         this.angle = Math.random() * 2 * Math.PI;
-        // this.angle = Math.PI * 5 / 4;
-
     }
 
-
-    public move(speed : number) : void {
-        while(true){
-            if(this.angle === 1000){
-                return;
-            }
-            let deltay = Math.sin(this.angle);
-            let deltax = Math.cos(this.angle);
-            let x = this.getPosition().getX();
-            let y = this.getPosition().getY();
-            let newX = x + deltax * speed;
-            let newY = y + deltay * speed;
-            if(newX < 0){
-                this.angle = this.angle + Math.PI;
-                continue;
-            }else if(newY < 0){
-                this.angle = this.angle + Math.PI;
-                continue;
-            }
-            this.getPosition().setX(newX);
-            this.getPosition().setY(newY);
-            break;
-        }
+    public setBehavior( behavior : Behavior) : void{
+        this.behavior = behavior;
     }
-
-    public goTarget(speed : number) : void{
-        if(this.targetX === -1 || this.targetY === -1){
-            return;
-        }
-        let deltaX : number = this.targetX - this.getPosition().getX() - 128 / 2;
-        let deltaY : number = this.targetY - this.getPosition().getY() - 128 / 2;
-        if(deltaX > 0 && deltaY < 0){
-            this.angle = Math.atan(deltaY / deltaX) + 2 * Math.PI;
-        }else if(deltaX > 0){
-            this.angle = Math.atan(deltaY / deltaX);
-        }else if(deltaX < 0){
-            this.angle = Math.atan(deltaY / deltaX) + Math.PI;
-        }else if(deltaX === 0 && deltaY > 0){
-            this.angle = Math.PI / 2
-        }else if(deltaX === 0 && deltaY < 0){
-            this.angle = 3 * Math.PI / 2
-        } 
-        if(deltaX < 3 && deltaX > -3 && deltaY < 3 && deltaY > -3){
-            if(this.type === "MANTIS"){
-                this.move(0);
-            }else{
-                this.randomAngle();
-            }
-        }else{
-            this.move(speed);
-        }
-    }
-
 
     public update(delta : number) : void {
         this.frameCounter++;

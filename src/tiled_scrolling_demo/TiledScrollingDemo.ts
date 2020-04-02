@@ -9,6 +9,10 @@ import {TiledLayer} from '../wolfie2d/scene/tiles/TiledLayer'
 import {SceneGraph} from '../wolfie2d/scene/SceneGraph'
 import {Viewport} from '../wolfie2d/scene/Viewport'
 import {TextToRender, TextRenderer} from '../wolfie2d/rendering/TextRenderer'
+import { PatrolBehavoir } from '../wolfie2d/scene/sprite/PatrolBehavior';
+import {Behavior} from '../wolfie2d/scene/sprite/Behavior';
+import { MainCharacterBehavior } from '../wolfie2d/scene/sprite/MainCharacterBehavior';
+import {EnemyBehavior} from '../wolfie2d/scene/sprite/EnemyBehavior';
 
 // THIS IS THE ENTRY POINT INTO OUR APPLICATION, WE MAKE
 // THE Game OBJECT AND INITIALIZE IT WITH THE CANVASES
@@ -30,22 +34,28 @@ game.getResourceManager().loadScene(DESERT_SCENE_PATH,
     let worldHeight : number = world[0].getRows() * world[0].getTileSet().getTileHeight();
     for (let i = 0; i < 50; i++) {
         let type : AnimatedSpriteType = game.getResourceManager().getAnimatedSpriteType("STICK_BUG");
-        let randomSprite : AnimatedSprite = new AnimatedSprite(type, "WALKING", "STICKY BUG");
+        let randomSprite : AnimatedSprite = new AnimatedSprite(type, "WALKING");
         let randomX : number = Math.random() * worldWidth;
         let randomY : number = Math.random() * worldHeight;
+        let behavior : Behavior = new EnemyBehavior(randomSprite, worldWidth, worldHeight);
+        randomSprite.setBehavior(behavior);
         randomSprite.getPosition().set(randomX, randomY, 0, 1);
         game.getSceneGraph().addAnimatedSprite(randomSprite);
     }
     for (let i = 0; i < 50; i++) {
         let type : AnimatedSpriteType = game.getResourceManager().getAnimatedSpriteType("CAMEL_SPIDER");
-        let randomSprite : AnimatedSprite = new AnimatedSprite(type, "WALKING", 'CAMEL SPIDER');
+        let randomSprite : AnimatedSprite = new AnimatedSprite(type, "WALKING");
         let randomX : number = Math.random() * worldWidth;
         let randomY : number = Math.random() * worldHeight;
+        let behavior : Behavior = new PatrolBehavoir(randomSprite, worldWidth, worldHeight);
+        randomSprite.setBehavior(behavior);
         randomSprite.getPosition().set(randomX, randomY, 0, 1);
         game.getSceneGraph().addAnimatedSprite(randomSprite);
     }
     let type : AnimatedSpriteType = game.getResourceManager().getAnimatedSpriteType("MANTIS");
-    let randomSprite : AnimatedSprite = new AnimatedSprite(type, "WALKING", 'MANTIS');
+    let randomSprite : AnimatedSprite = new AnimatedSprite(type, "WALKING");
+    let behavior : Behavior = new MainCharacterBehavior(randomSprite, worldWidth, worldHeight);
+    randomSprite.setBehavior(behavior);
     randomSprite.getPosition().set(game.getSceneGraph().getViewport().getWidth() / 2, game.getSceneGraph().getViewport().getHeight() / 2, 0, 1);
     game.getSceneGraph().setMainSprite(randomSprite);
 

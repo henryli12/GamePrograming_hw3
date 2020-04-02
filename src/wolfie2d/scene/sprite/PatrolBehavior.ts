@@ -4,13 +4,13 @@ import {Behavior} from "./Behavior";
 export class PatrolBehavoir extends Behavior{
     private speed : number;
 
-    public constructor(sprite : AnimatedSprite){
-        super(sprite);
+    public constructor(sprite : AnimatedSprite,x : number, y : number){
+        super(sprite,x, y);
         this.speed = 3;
     }
 
     public update(delta : number) : void{
-        this.getSprite().move(this.speed);
+        this.move(this.speed);
     }
 
 }

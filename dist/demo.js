@@ -9,6 +9,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var Game_1 = require("../wolfie2d/Game");
 var AnimatedSprite_1 = require("../wolfie2d/scene/sprite/AnimatedSprite");
 var TextRenderer_1 = require("../wolfie2d/rendering/TextRenderer");
+var PatrolBehavior_1 = require("../wolfie2d/scene/sprite/PatrolBehavior");
+var MainCharacterBehavior_1 = require("../wolfie2d/scene/sprite/MainCharacterBehavior");
+var EnemyBehavior_1 = require("../wolfie2d/scene/sprite/EnemyBehavior");
 // THIS IS THE ENTRY POINT INTO OUR APPLICATION, WE MAKE
 // THE Game OBJECT AND INITIALIZE IT WITH THE CANVASES
 var game = new Game_1.Game("game_canvas", "text_canvas");
@@ -25,22 +28,28 @@ game.getResourceManager().loadScene(DESERT_SCENE_PATH, game.getSceneGraph(), gam
     var worldHeight = world[0].getRows() * world[0].getTileSet().getTileHeight();
     for (var i = 0; i < 50; i++) {
         var _type = game.getResourceManager().getAnimatedSpriteType("STICK_BUG");
-        var _randomSprite = new AnimatedSprite_1.AnimatedSprite(_type, "WALKING", "STICKY BUG");
+        var _randomSprite = new AnimatedSprite_1.AnimatedSprite(_type, "WALKING");
         var randomX = Math.random() * worldWidth;
         var randomY = Math.random() * worldHeight;
+        var _behavior = new EnemyBehavior_1.EnemyBehavior(_randomSprite, worldWidth, worldHeight);
+        _randomSprite.setBehavior(_behavior);
         _randomSprite.getPosition().set(randomX, randomY, 0, 1);
         game.getSceneGraph().addAnimatedSprite(_randomSprite);
     }
     for (var _i = 0; _i < 50; _i++) {
         var _type2 = game.getResourceManager().getAnimatedSpriteType("CAMEL_SPIDER");
-        var _randomSprite2 = new AnimatedSprite_1.AnimatedSprite(_type2, "WALKING", 'CAMEL SPIDER');
+        var _randomSprite2 = new AnimatedSprite_1.AnimatedSprite(_type2, "WALKING");
         var _randomX = Math.random() * worldWidth;
         var _randomY = Math.random() * worldHeight;
+        var _behavior2 = new PatrolBehavior_1.PatrolBehavoir(_randomSprite2, worldWidth, worldHeight);
+        _randomSprite2.setBehavior(_behavior2);
         _randomSprite2.getPosition().set(_randomX, _randomY, 0, 1);
         game.getSceneGraph().addAnimatedSprite(_randomSprite2);
     }
     var type = game.getResourceManager().getAnimatedSpriteType("MANTIS");
-    var randomSprite = new AnimatedSprite_1.AnimatedSprite(type, "WALKING", 'MANTIS');
+    var randomSprite = new AnimatedSprite_1.AnimatedSprite(type, "WALKING");
+    var behavior = new MainCharacterBehavior_1.MainCharacterBehavior(randomSprite, worldWidth, worldHeight);
+    randomSprite.setBehavior(behavior);
     randomSprite.getPosition().set(game.getSceneGraph().getViewport().getWidth() / 2, game.getSceneGraph().getViewport().getHeight() / 2, 0, 1);
     game.getSceneGraph().setMainSprite(randomSprite);
     // NOW ADD TEXT RENDERING. WE ARE GOING TO RENDER 3 THINGS:
@@ -70,7 +79,7 @@ game.getResourceManager().loadScene(DESERT_SCENE_PATH, game.getSceneGraph(), gam
     game.start();
 });
 
-},{"../wolfie2d/Game":2,"../wolfie2d/rendering/TextRenderer":9,"../wolfie2d/scene/sprite/AnimatedSprite":19}],2:[function(require,module,exports){
+},{"../wolfie2d/Game":2,"../wolfie2d/rendering/TextRenderer":9,"../wolfie2d/scene/sprite/AnimatedSprite":19,"../wolfie2d/scene/sprite/EnemyBehavior":22,"../wolfie2d/scene/sprite/MainCharacterBehavior":23,"../wolfie2d/scene/sprite/PatrolBehavior":24}],2:[function(require,module,exports){
 "use strict";
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -2585,37 +2594,23 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var SceneObject_1 = require("../SceneObject");
-var PatrolBehavior_1 = require("./PatrolBehavior");
-var MainCharacterBehavior_1 = require("./MainCharacterBehavior");
-var EnemyBehavior_1 = require("./EnemyBehavior");
 
 var AnimatedSprite = function (_SceneObject_1$SceneO) {
     _inherits(AnimatedSprite, _SceneObject_1$SceneO);
 
-    function AnimatedSprite(initSpriteType, initState, type) {
+    function AnimatedSprite(initSpriteType, initState) {
         _classCallCheck(this, AnimatedSprite);
 
         var _this = _possibleConstructorReturn(this, (AnimatedSprite.__proto__ || Object.getPrototypeOf(AnimatedSprite)).call(this));
 
         _this.spriteType = initSpriteType;
-        _this.type = type;
         // START RESET
         _this.state = initState;
         _this.animationFrameIndex = 0;
         _this.frameCounter = 0;
-        _this.angle = 1000;
         _this.targetX = -1;
         _this.targetY = -1;
-        if (type !== "MANTIS") {
-            _this.randomAngle();
-        }
-        if (_this.type === "MANTIS") {
-            _this.behavior = new MainCharacterBehavior_1.MainCharacterBehavior(_this);
-        } else if (_this.type === "STICKY BUG") {
-            _this.behavior = new EnemyBehavior_1.EnemyBehavior(_this);
-        } else if (_this.type === "CAMEL SPIDER") {
-            _this.behavior = new PatrolBehavior_1.PatrolBehavoir(_this);
-        }
+        _this.randomAngle();
         return _this;
     }
 
@@ -2639,11 +2634,6 @@ var AnimatedSprite = function (_SceneObject_1$SceneO) {
         value: function setTarget(x, y) {
             this.targetX = x;
             this.targetY = y;
-        }
-    }, {
-        key: "getType",
-        value: function getType() {
-            return this.type;
         }
     }, {
         key: "getAngle",
@@ -2681,61 +2671,11 @@ var AnimatedSprite = function (_SceneObject_1$SceneO) {
         key: "randomAngle",
         value: function randomAngle() {
             this.angle = Math.random() * 2 * Math.PI;
-            // this.angle = Math.PI * 5 / 4;
         }
     }, {
-        key: "move",
-        value: function move(speed) {
-            while (true) {
-                if (this.angle === 1000) {
-                    return;
-                }
-                var deltay = Math.sin(this.angle);
-                var deltax = Math.cos(this.angle);
-                var x = this.getPosition().getX();
-                var y = this.getPosition().getY();
-                var newX = x + deltax * speed;
-                var newY = y + deltay * speed;
-                if (newX < 0) {
-                    this.angle = this.angle + Math.PI;
-                    continue;
-                } else if (newY < 0) {
-                    this.angle = this.angle + Math.PI;
-                    continue;
-                }
-                this.getPosition().setX(newX);
-                this.getPosition().setY(newY);
-                break;
-            }
-        }
-    }, {
-        key: "goTarget",
-        value: function goTarget(speed) {
-            if (this.targetX === -1 || this.targetY === -1) {
-                return;
-            }
-            var deltaX = this.targetX - this.getPosition().getX() - 128 / 2;
-            var deltaY = this.targetY - this.getPosition().getY() - 128 / 2;
-            if (deltaX > 0 && deltaY < 0) {
-                this.angle = Math.atan(deltaY / deltaX) + 2 * Math.PI;
-            } else if (deltaX > 0) {
-                this.angle = Math.atan(deltaY / deltaX);
-            } else if (deltaX < 0) {
-                this.angle = Math.atan(deltaY / deltaX) + Math.PI;
-            } else if (deltaX === 0 && deltaY > 0) {
-                this.angle = Math.PI / 2;
-            } else if (deltaX === 0 && deltaY < 0) {
-                this.angle = 3 * Math.PI / 2;
-            }
-            if (deltaX < 3 && deltaX > -3 && deltaY < 3 && deltaY > -3) {
-                if (this.type === "MANTIS") {
-                    this.move(0);
-                } else {
-                    this.randomAngle();
-                }
-            } else {
-                this.move(speed);
-            }
+        key: "setBehavior",
+        value: function setBehavior(behavior) {
+            this.behavior = behavior;
         }
     }, {
         key: "update",
@@ -2793,7 +2733,7 @@ var AnimatedSprite = function (_SceneObject_1$SceneO) {
 
 exports.AnimatedSprite = AnimatedSprite;
 
-},{"../SceneObject":17,"./EnemyBehavior":22,"./MainCharacterBehavior":23,"./PatrolBehavior":24}],20:[function(require,module,exports){
+},{"../SceneObject":17}],20:[function(require,module,exports){
 "use strict";
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -2887,16 +2827,38 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 Object.defineProperty(exports, "__esModule", { value: true });
 
 var Behavior = function () {
-    function Behavior(sprite) {
+    function Behavior(sprite, x, y) {
         _classCallCheck(this, Behavior);
 
         this.sprite = sprite;
+        this.worldEndX = x;
+        this.worldEndY = y;
     }
 
     _createClass(Behavior, [{
         key: "getSprite",
         value: function getSprite() {
             return this.sprite;
+        }
+    }, {
+        key: "move",
+        value: function move(speed) {
+            var angle = this.sprite.getAngle();
+            if (angle === 1000) {
+                return;
+            }
+            var deltay = Math.sin(angle);
+            var deltax = Math.cos(angle);
+            var x = this.sprite.getPosition().getX();
+            var y = this.sprite.getPosition().getY();
+            var newX = x + deltax * speed;
+            var newY = y + deltay * speed;
+            if (newX < 0 || newY < 0 || newX > this.worldEndX || newY > this.worldEndY) {
+                angle = angle + Math.PI;
+                this.getSprite().setAngle(angle);
+            }
+            this.sprite.getPosition().setX(newX);
+            this.sprite.getPosition().setY(newY);
         }
     }, {
         key: "update",
@@ -2925,10 +2887,10 @@ var Behavior_1 = require("./Behavior");
 var EnemyBehavior = function (_Behavior_1$Behavior) {
     _inherits(EnemyBehavior, _Behavior_1$Behavior);
 
-    function EnemyBehavior(sprite) {
+    function EnemyBehavior(sprite, x, y) {
         _classCallCheck(this, EnemyBehavior);
 
-        var _this = _possibleConstructorReturn(this, (EnemyBehavior.__proto__ || Object.getPrototypeOf(EnemyBehavior)).call(this, sprite));
+        var _this = _possibleConstructorReturn(this, (EnemyBehavior.__proto__ || Object.getPrototypeOf(EnemyBehavior)).call(this, sprite, x, y));
 
         _this.speed = 3;
         _this.moveLimit = Math.random() * 500 + 100;
@@ -2942,7 +2904,8 @@ var EnemyBehavior = function (_Behavior_1$Behavior) {
                 this.getSprite().randomAngle();
                 this.moveLimit = Math.random() * 500 + 100;
             }
-            this.getSprite().move(this.speed);
+            // this.getSprite().move(this.speed);
+            this.move(this.speed);
             this.moveLimit -= 1;
         }
     }]);
@@ -2969,19 +2932,50 @@ var Behavior_1 = require("./Behavior");
 var MainCharacterBehavior = function (_Behavior_1$Behavior) {
     _inherits(MainCharacterBehavior, _Behavior_1$Behavior);
 
-    function MainCharacterBehavior(sprite) {
+    function MainCharacterBehavior(sprite, x, y) {
         _classCallCheck(this, MainCharacterBehavior);
 
-        var _this = _possibleConstructorReturn(this, (MainCharacterBehavior.__proto__ || Object.getPrototypeOf(MainCharacterBehavior)).call(this, sprite));
+        var _this = _possibleConstructorReturn(this, (MainCharacterBehavior.__proto__ || Object.getPrototypeOf(MainCharacterBehavior)).call(this, sprite, x, y));
 
         _this.speed = 5;
         return _this;
     }
 
     _createClass(MainCharacterBehavior, [{
+        key: "goTarget",
+        value: function goTarget(speed) {
+            var angle = this.getSprite().getAngle();
+            var targetX = this.getSprite().getTargetX();
+            var targetY = this.getSprite().getTargetY();
+            if (targetX === -1 || targetY === -1) {
+                return;
+            }
+            var x = this.getSprite().getPosition().getX();
+            var y = this.getSprite().getPosition().getY();
+            var deltaX = targetX - x - 128 / 2;
+            var deltaY = targetY - y - 128 / 2;
+            if (deltaX > 0 && deltaY < 0) {
+                angle = Math.atan(deltaY / deltaX) + 2 * Math.PI;
+            } else if (deltaX > 0) {
+                angle = Math.atan(deltaY / deltaX);
+            } else if (deltaX < 0) {
+                angle = Math.atan(deltaY / deltaX) + Math.PI;
+            } else if (deltaX === 0 && deltaY > 0) {
+                angle = Math.PI / 2;
+            } else if (deltaX === 0 && deltaY < 0) {
+                angle = 3 * Math.PI / 2;
+            }
+            this.getSprite().setAngle(angle);
+            if (deltaX < 3 && deltaX > -3 && deltaY < 3 && deltaY > -3) {
+                this.move(0);
+            } else {
+                this.move(speed);
+            }
+        }
+    }, {
         key: "update",
         value: function update(delta) {
-            this.getSprite().goTarget(this.speed);
+            this.goTarget(this.speed);
         }
     }]);
 
@@ -3007,10 +3001,10 @@ var Behavior_1 = require("./Behavior");
 var PatrolBehavoir = function (_Behavior_1$Behavior) {
     _inherits(PatrolBehavoir, _Behavior_1$Behavior);
 
-    function PatrolBehavoir(sprite) {
+    function PatrolBehavoir(sprite, x, y) {
         _classCallCheck(this, PatrolBehavoir);
 
-        var _this = _possibleConstructorReturn(this, (PatrolBehavoir.__proto__ || Object.getPrototypeOf(PatrolBehavoir)).call(this, sprite));
+        var _this = _possibleConstructorReturn(this, (PatrolBehavoir.__proto__ || Object.getPrototypeOf(PatrolBehavoir)).call(this, sprite, x, y));
 
         _this.speed = 3;
         return _this;
@@ -3019,7 +3013,7 @@ var PatrolBehavoir = function (_Behavior_1$Behavior) {
     _createClass(PatrolBehavoir, [{
         key: "update",
         value: function update(delta) {
-            this.getSprite().move(this.speed);
+            this.move(this.speed);
         }
     }]);
 
