@@ -82,6 +82,9 @@ export class UIController {
         let maxY = worldHeight - vheight;
 
         let main = this.scene.getMainSprite();
+        if(main === null){
+            return;
+        }
         let mainX = main.getTargetX();
         let mainY = main.getTargetY();
 

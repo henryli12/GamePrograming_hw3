@@ -1,5 +1,9 @@
 import {SceneObject} from '../SceneObject'
 import {AnimatedSpriteType} from './AnimatedSpriteType'
+import { PatrolBehavoir } from './PatrolBehavior';
+import {Behavior} from './Behavior';
+import { MainCharacterBehavior } from './MainCharacterBehavior';
+import {EnemyBehavior} from './EnemyBehavior';
 
 export class AnimatedSprite extends SceneObject {
     private spriteType : AnimatedSpriteType;
@@ -10,6 +14,7 @@ export class AnimatedSprite extends SceneObject {
     private angle: number;
     private targetX : number;
     private targetY : number;
+    private behavior : Behavior;
     
     public constructor(initSpriteType : AnimatedSpriteType, initState : string, type : string) {
         super();
@@ -26,6 +31,13 @@ export class AnimatedSprite extends SceneObject {
         this.targetY = -1;
         if(type !== "MANTIS"){
             this.randomAngle();
+        }
+        if(this.type === "MANTIS"){
+            this.behavior = new MainCharacterBehavior(this);
+        }else if(this.type === "STICKY BUG"){
+            this.behavior = new EnemyBehavior(this);
+        }else if(this.type === "CAMEL SPIDER"){
+            this.behavior = new PatrolBehavoir(this);
         }
     }
 
@@ -130,29 +142,15 @@ export class AnimatedSprite extends SceneObject {
                 this.randomAngle();
             }
         }else{
-            this.move(3);
+            this.move(speed);
         }
     }
 
 
     public update(delta : number) : void {
         this.frameCounter++;
-        let x = this.getPosition().getX();
-        let y = this.getPosition().getY();
-        if(this.type === "MANTIS"){
-            this.goTarget(3);
-        }else if(this.type === "STICKY BUG"){
-            this.move(1);
-            let rand = Math.random();
-            if(rand < .005){
-                this.randomAngle();
-            }
-        }else if(this.type === "CAMEL SPIDER"){
-            this.move(1);
-        }
-        // if(this.type === "STICKY BUG"){
-        //     this.move(180);
-        // }
+
+        this.behavior.update(delta);
 
         // HAVE WE GONE PAST THE LAST FRAME IN THE ANIMATION?
         var currentAnimation = this.spriteType.getAnimation(this.state);
