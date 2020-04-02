@@ -10,12 +10,16 @@ export class UIController {
     private scene : SceneGraph;
     private dragOffsetX : number;
     private dragOffsetY : number;
+    private cursorX : number;
+    private cursorY : number;
 
     public constructor(canvasId : string, initScene : SceneGraph) {
         this.spriteToDrag = null;
         this.scene = initScene;
         this.dragOffsetX = -1;
         this.dragOffsetY = -1;
+        this.cursorX = 0;
+        this.cursorY = 0;
 
         let canvas : HTMLCanvasElement = <HTMLCanvasElement>document.getElementById(canvasId);
         canvas.addEventListener("mousedown", this.mouseDownHandler);
@@ -57,18 +61,15 @@ export class UIController {
     }
 
     public moveMainHandler = (event : MouseEvent) : void => {
+        let viewport : Viewport = this.scene.getViewport();
+        this.cursorX = event.clientX + viewport.getX();
+        this.cursorY = event.clientY + viewport.getY();
         let main = this.scene.getMainSprite();
         if(main == null) return;
-        let viewport : Viewport = this.scene.getViewport();
-        let x = viewport.getX();
-        let y = viewport.getY();
-        let mousePressX : number = event.clientX;
-        let mousePressY : number = event.clientY;
-        main.getPosition().set(mousePressX - 64 + x, mousePressY + y, 0, 1);
+        main.setTarget(this.cursorX, this.cursorY);
     }
 
     public keyDownHandler = (event : KeyboardEvent) : void => {
-        let main = this.scene.getMainSprite();
         let viewport = this.scene.getViewport();
         let x = viewport.getX();
         let y = viewport.getY();
@@ -80,6 +81,10 @@ export class UIController {
         let maxX = worldWidth - vwidth;
         let maxY = worldHeight - vheight;
 
+        let main = this.scene.getMainSprite();
+        let mainX = main.getTargetX();
+        let mainY = main.getTargetY();
+
         if (event.keyCode == 65){
             console.log('left')
             let newX = x - 10;
@@ -90,6 +95,7 @@ export class UIController {
                 viewport.setPosition(0, y);
             }else{
                 viewport.setPosition(newX, y);
+                main.setTarget(mainX - 10, mainY);
             }
         }else if (event.keyCode == 83){
             console.log('down');
@@ -98,6 +104,7 @@ export class UIController {
                 viewport.setPosition(x, maxY);
             }else{
                 viewport.setPosition(x, newY);
+                main.setTarget(mainX , mainY + 10);
             }
         }else if (event.keyCode == 68){
             console.log('right');
@@ -109,6 +116,7 @@ export class UIController {
                 viewport.setPosition(maxX, y);
             }else{
                 viewport.setPosition(newX, y);
+                main.setTarget(mainX + 10, mainY);
             }
         }else if (event.keyCode == 87){
             console.log('up');
@@ -117,6 +125,7 @@ export class UIController {
                 viewport.setPosition(x, 0);
             }else{
                 viewport.setPosition(x, newY);
+                main.setTarget(mainX, mainY - 10);
             }
         }
 

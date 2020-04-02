@@ -25,7 +25,7 @@ game.getResourceManager().loadScene(DESERT_SCENE_PATH, game.getSceneGraph(), gam
     var worldHeight = world[0].getRows() * world[0].getTileSet().getTileHeight();
     for (var i = 0; i < 50; i++) {
         var _type = game.getResourceManager().getAnimatedSpriteType("STICK_BUG");
-        var _randomSprite = new AnimatedSprite_1.AnimatedSprite(_type, "WALKING");
+        var _randomSprite = new AnimatedSprite_1.AnimatedSprite(_type, "WALKING", "STICKY BUG");
         var randomX = Math.random() * worldWidth;
         var randomY = Math.random() * worldHeight;
         _randomSprite.getPosition().set(randomX, randomY, 0, 1);
@@ -33,15 +33,15 @@ game.getResourceManager().loadScene(DESERT_SCENE_PATH, game.getSceneGraph(), gam
     }
     for (var _i = 0; _i < 50; _i++) {
         var _type2 = game.getResourceManager().getAnimatedSpriteType("CAMEL_SPIDER");
-        var _randomSprite2 = new AnimatedSprite_1.AnimatedSprite(_type2, "WALKING");
+        var _randomSprite2 = new AnimatedSprite_1.AnimatedSprite(_type2, "WALKING", 'CAMEL SPIDER');
         var _randomX = Math.random() * worldWidth;
         var _randomY = Math.random() * worldHeight;
         _randomSprite2.getPosition().set(_randomX, _randomY, 0, 1);
         game.getSceneGraph().addAnimatedSprite(_randomSprite2);
     }
     var type = game.getResourceManager().getAnimatedSpriteType("MANTIS");
-    var randomSprite = new AnimatedSprite_1.AnimatedSprite(type, "WALKING");
-    randomSprite.getPosition().set(200, 200, 0, 1);
+    var randomSprite = new AnimatedSprite_1.AnimatedSprite(type, "WALKING", 'MANTIS');
+    randomSprite.getPosition().set(game.getSceneGraph().getViewport().getWidth() / 2, game.getSceneGraph().getViewport().getHeight() / 2, 0, 1);
     game.getSceneGraph().setMainSprite(randomSprite);
     // NOW ADD TEXT RENDERING. WE ARE GOING TO RENDER 3 THINGS:
     // NUMBER OF SPRITES IN THE SCENE
@@ -2589,16 +2589,23 @@ var SceneObject_1 = require("../SceneObject");
 var AnimatedSprite = function (_SceneObject_1$SceneO) {
     _inherits(AnimatedSprite, _SceneObject_1$SceneO);
 
-    function AnimatedSprite(initSpriteType, initState) {
+    function AnimatedSprite(initSpriteType, initState, type) {
         _classCallCheck(this, AnimatedSprite);
 
         var _this = _possibleConstructorReturn(this, (AnimatedSprite.__proto__ || Object.getPrototypeOf(AnimatedSprite)).call(this));
 
         _this.spriteType = initSpriteType;
+        _this.type = type;
         // START RESET
         _this.state = initState;
         _this.animationFrameIndex = 0;
         _this.frameCounter = 0;
+        _this.angle = 1000;
+        _this.targetX = -1;
+        _this.targetY = -1;
+        if (type !== "MANTIS") {
+            _this.randomAngle();
+        }
         return _this;
     }
 
@@ -2618,6 +2625,37 @@ var AnimatedSprite = function (_SceneObject_1$SceneO) {
             return this.spriteType;
         }
     }, {
+        key: "setTarget",
+        value: function setTarget(x, y) {
+            this.targetX = x;
+            this.targetY = y;
+        }
+    }, {
+        key: "getType",
+        value: function getType() {
+            return this.type;
+        }
+    }, {
+        key: "getAngle",
+        value: function getAngle() {
+            return this.angle;
+        }
+    }, {
+        key: "setAngle",
+        value: function setAngle(newAngle) {
+            this.angle = newAngle;
+        }
+    }, {
+        key: "getTargetX",
+        value: function getTargetX() {
+            return this.targetX;
+        }
+    }, {
+        key: "getTargetY",
+        value: function getTargetY() {
+            return this.targetY;
+        }
+    }, {
         key: "getState",
         value: function getState() {
             return this.state;
@@ -2630,9 +2668,85 @@ var AnimatedSprite = function (_SceneObject_1$SceneO) {
             this.frameCounter = 0;
         }
     }, {
+        key: "randomAngle",
+        value: function randomAngle() {
+            this.angle = Math.random() * 2 * Math.PI;
+            // this.angle = Math.PI * 5 / 4;
+        }
+    }, {
+        key: "move",
+        value: function move(speed) {
+            while (true) {
+                if (this.angle === 1000) {
+                    return;
+                }
+                var deltay = Math.sin(this.angle);
+                var deltax = Math.cos(this.angle);
+                var x = this.getPosition().getX();
+                var y = this.getPosition().getY();
+                var newX = x + deltax * speed;
+                var newY = y + deltay * speed;
+                if (newX < 0) {
+                    this.angle = this.angle + Math.PI;
+                    continue;
+                } else if (newY < 0) {
+                    this.angle = this.angle + Math.PI;
+                    continue;
+                }
+                this.getPosition().setX(newX);
+                this.getPosition().setY(newY);
+                break;
+            }
+        }
+    }, {
+        key: "goTarget",
+        value: function goTarget(speed) {
+            if (this.targetX === -1 || this.targetY === -1) {
+                return;
+            }
+            var deltaX = this.targetX - this.getPosition().getX() - 128 / 2;
+            var deltaY = this.targetY - this.getPosition().getY() - 128 / 2;
+            if (deltaX > 0 && deltaY < 0) {
+                this.angle = Math.atan(deltaY / deltaX) + 2 * Math.PI;
+            } else if (deltaX > 0) {
+                this.angle = Math.atan(deltaY / deltaX);
+            } else if (deltaX < 0) {
+                this.angle = Math.atan(deltaY / deltaX) + Math.PI;
+            } else if (deltaX === 0 && deltaY > 0) {
+                this.angle = Math.PI / 2;
+            } else if (deltaX === 0 && deltaY < 0) {
+                this.angle = 3 * Math.PI / 2;
+            }
+            if (deltaX < 3 && deltaX > -3 && deltaY < 3 && deltaY > -3) {
+                if (this.type === "MANTIS") {
+                    this.move(0);
+                } else {
+                    this.randomAngle();
+                }
+            } else {
+                this.move(3);
+            }
+        }
+    }, {
         key: "update",
         value: function update(delta) {
             this.frameCounter++;
+            var x = this.getPosition().getX();
+            var y = this.getPosition().getY();
+            if (this.type === "MANTIS") {
+                this.goTarget(3);
+            } else if (this.type === "STICKY BUG") {
+                this.move(1);
+                var rand = Math.random();
+                if (rand < .005) {
+                    this.randomAngle();
+                }
+            } else if (this.type === "CAMEL SPIDER") {
+                this.move(1);
+            }
+            // if(this.type === "STICKY BUG"){
+            //     this.move(180);
+            // }
             // HAVE WE GONE PAST THE LAST FRAME IN THE ANIMATION?
             var currentAnimation = this.spriteType.getAnimation(this.state);
             var currentFrame = currentAnimation[this.animationFrameIndex];
@@ -2997,17 +3111,14 @@ var UIController = function UIController(canvasId, initScene) {
         _this.spriteToDrag = null;
     };
     this.moveMainHandler = function (event) {
+        var viewport = _this.scene.getViewport();
+        _this.cursorX = event.clientX + viewport.getX();
+        _this.cursorY = event.clientY + viewport.getY();
         var main = _this.scene.getMainSprite();
         if (main == null) return;
-        var viewport = _this.scene.getViewport();
-        var x = viewport.getX();
-        var y = viewport.getY();
-        var mousePressX = event.clientX;
-        var mousePressY = event.clientY;
-        main.getPosition().set(mousePressX - 64 + x, mousePressY + y, 0, 1);
+        main.setTarget(_this.cursorX, _this.cursorY);
     };
     this.keyDownHandler = function (event) {
-        var main = _this.scene.getMainSprite();
         var viewport = _this.scene.getViewport();
         var x = viewport.getX();
         var y = viewport.getY();
@@ -3018,6 +3129,9 @@ var UIController = function UIController(canvasId, initScene) {
         var worldHeight = world[0].getRows() * world[0].getTileSet().getTileHeight();
         var maxX = worldWidth - vwidth;
         var maxY = worldHeight - vheight;
+        var main = _this.scene.getMainSprite();
+        var mainX = main.getTargetX();
+        var mainY = main.getTargetY();
         if (event.keyCode == 65) {
             console.log('left');
             var newX = x - 10;
@@ -3028,6 +3142,7 @@ var UIController = function UIController(canvasId, initScene) {
                 viewport.setPosition(0, y);
             } else {
                 viewport.setPosition(newX, y);
+                main.setTarget(mainX - 10, mainY);
             }
         } else if (event.keyCode == 83) {
             console.log('down');
@@ -3036,6 +3151,7 @@ var UIController = function UIController(canvasId, initScene) {
                 viewport.setPosition(x, maxY);
             } else {
                 viewport.setPosition(x, newY);
+                main.setTarget(mainX, mainY + 10);
             }
         } else if (event.keyCode == 68) {
             console.log('right');
@@ -3047,6 +3163,7 @@ var UIController = function UIController(canvasId, initScene) {
                 viewport.setPosition(maxX, y);
             } else {
                 viewport.setPosition(_newX, y);
+                main.setTarget(mainX + 10, mainY);
             }
         } else if (event.keyCode == 87) {
             console.log('up');
@@ -3055,6 +3172,7 @@ var UIController = function UIController(canvasId, initScene) {
                 viewport.setPosition(x, 0);
             } else {
                 viewport.setPosition(x, _newY);
+                main.setTarget(mainX, mainY - 10);
             }
         }
     };
@@ -3062,6 +3180,8 @@ var UIController = function UIController(canvasId, initScene) {
     this.scene = initScene;
     this.dragOffsetX = -1;
     this.dragOffsetY = -1;
+    this.cursorX = 0;
+    this.cursorY = 0;
     var canvas = document.getElementById(canvasId);
     canvas.addEventListener("mousedown", this.mouseDownHandler);
     canvas.addEventListener("mousemove", this.mouseMoveHandler);

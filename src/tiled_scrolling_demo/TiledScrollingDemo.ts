@@ -30,7 +30,7 @@ game.getResourceManager().loadScene(DESERT_SCENE_PATH,
     let worldHeight : number = world[0].getRows() * world[0].getTileSet().getTileHeight();
     for (let i = 0; i < 50; i++) {
         let type : AnimatedSpriteType = game.getResourceManager().getAnimatedSpriteType("STICK_BUG");
-        let randomSprite : AnimatedSprite = new AnimatedSprite(type, "WALKING");
+        let randomSprite : AnimatedSprite = new AnimatedSprite(type, "WALKING", "STICKY BUG");
         let randomX : number = Math.random() * worldWidth;
         let randomY : number = Math.random() * worldHeight;
         randomSprite.getPosition().set(randomX, randomY, 0, 1);
@@ -38,15 +38,15 @@ game.getResourceManager().loadScene(DESERT_SCENE_PATH,
     }
     for (let i = 0; i < 50; i++) {
         let type : AnimatedSpriteType = game.getResourceManager().getAnimatedSpriteType("CAMEL_SPIDER");
-        let randomSprite : AnimatedSprite = new AnimatedSprite(type, "WALKING");
+        let randomSprite : AnimatedSprite = new AnimatedSprite(type, "WALKING", 'CAMEL SPIDER');
         let randomX : number = Math.random() * worldWidth;
         let randomY : number = Math.random() * worldHeight;
         randomSprite.getPosition().set(randomX, randomY, 0, 1);
         game.getSceneGraph().addAnimatedSprite(randomSprite);
     }
     let type : AnimatedSpriteType = game.getResourceManager().getAnimatedSpriteType("MANTIS");
-    let randomSprite : AnimatedSprite = new AnimatedSprite(type, "WALKING");
-    randomSprite.getPosition().set(200, 200, 0, 1);
+    let randomSprite : AnimatedSprite = new AnimatedSprite(type, "WALKING", 'MANTIS');
+    randomSprite.getPosition().set(game.getSceneGraph().getViewport().getWidth() / 2, game.getSceneGraph().getViewport().getHeight() / 2, 0, 1);
     game.getSceneGraph().setMainSprite(randomSprite);
 
     // NOW ADD TEXT RENDERING. WE ARE GOING TO RENDER 3 THINGS:
