@@ -2128,7 +2128,7 @@ var WebGLGameSpriteRenderer = function (_WebGLGameRenderingCo) {
             var spriteYTranslate = (spriteYInPixels - canvasHeight / 2) / (canvasHeight / 2);
             this.meshTranslate.setX(spriteXTranslate);
             this.meshTranslate.setY(-spriteYTranslate);
-            // this.meshRotate.setX(1);
+            this.meshRotate.setZ((sprite.getAngle() + Math.PI / 2) * -1);
             // CALCULATE HOW MUCH TO SCALE THE QUAD PER THE SPRITE SIZE
             var defaultWidth = canvasWidth;
             var defaultHeight = canvasHeight;
@@ -2962,20 +2962,29 @@ var EnemyBehavior = function (_Behavior_1$Behavior) {
         var _this = _possibleConstructorReturn(this, (EnemyBehavior.__proto__ || Object.getPrototypeOf(EnemyBehavior)).call(this, sprite, x, y));
 
         _this.speed = 3;
-        _this.moveLimit = Math.random() * 500 + 100;
         _this.dying = false;
+        _this.turning = false;
         return _this;
     }
 
     _createClass(EnemyBehavior, [{
         key: "update",
         value: function update(delta) {
-            if (this.moveLimit < 0) {
-                this.getSprite().randomAngle();
-                this.moveLimit = Math.random() * 500 + 100;
+            var _this2 = this;
+
+            var sprite = this.getSprite();
+            if (!this.turning) {
+                this.turning = true;
+                var turn = function turn(delay) {
+                    setTimeout(function () {
+                        _this2.getSprite().randomAngle();
+                        _this2.turning = false;
+                    }, delay);
+                };
+                var time = Math.random() * 2000 + 1000;
+                turn(time);
             }
             this.move(this.speed);
-            this.moveLimit -= 1;
         }
     }, {
         key: "collided",
