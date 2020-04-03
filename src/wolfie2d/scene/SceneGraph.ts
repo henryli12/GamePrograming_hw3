@@ -135,6 +135,15 @@ export class SceneGraph {
      * @param delta The time that has passed since the last time this update
      * funcation was called.
      */
+
+    public checkWin() : boolean {
+        if(this.enemySprites.length === 0){
+            return true;
+        }else{
+            return false;
+        }
+    }
+    
     public update(delta : number) : void {
         for (let sprite of this.animatedSprites) {
             sprite.update(delta, this);

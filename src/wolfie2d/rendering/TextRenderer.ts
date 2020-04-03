@@ -67,14 +67,23 @@ export class TextRenderer {
         return this.textCanvasHeight;
     }
 
-    public render() : void {
+    public render(isWin : boolean) : void {
         this.textCtx.clearRect(0, 0, this.textCanvas.width, this.textCanvas.height);
-        for (var i = 0; i < this.textToRender.length; i++) {
-            var textToRender = this.textToRender[i];
+        var textToRender;
+        if(isWin){
+            textToRender = this.textToRender[this.textToRender.length - 1];
             textToRender.update();
             this.textCtx.font = "" + textToRender.fontSize + "px " + textToRender.fontFamily;
             this.textCtx.fillStyle = textToRender.fontColor;
             this.textCtx.fillText(textToRender.text, textToRender.x, textToRender.y);
+        }else{
+            for (var i = 0; i < this.textToRender.length - 1; i++) {
+                textToRender = this.textToRender[i];
+                textToRender.update();
+                this.textCtx.font = "" + textToRender.fontSize + "px " + textToRender.fontFamily;
+                this.textCtx.fillStyle = textToRender.fontColor;
+                this.textCtx.fillText(textToRender.text, textToRender.x, textToRender.y);
+            }
         }
     }
 }

@@ -135,17 +135,20 @@ export class WebGLGameRenderingSystem {
 
     public render(  viewport : Viewport,
                     tiledLayers: Array<TiledLayer>,
-                    visibleSprites: Array<AnimatedSprite>): void {
+                    visibleSprites: Array<AnimatedSprite>,
+                    isWin : boolean): void {
         // CLEAR THE CANVAS
         this.webGL.clear(this.webGL.COLOR_BUFFER_BIT | this.webGL.DEPTH_BUFFER_BIT);
 
+        if(!isWin){
         // RENDER THE TILED LAYER FIRST
         this.tiledLayerRenderer.render(this.webGL, viewport, tiledLayers);
 
         // RENDER THE SPRITES ON ONE CANVAS
         this.spriteRenderer.render(this.webGL, viewport, visibleSprites);
+        }
 
         // THEN THE TEXT ON ANOTHER OVERLAPPING CANVAS
-        this.textRenderer.render();
+        this.textRenderer.render(isWin);
     }
 }

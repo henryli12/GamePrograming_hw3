@@ -70,11 +70,18 @@ game.getResourceManager().loadScene(DESERT_SCENE_PATH, game.getSceneGraph(), gam
     var worldDimensionsText = new TextRenderer_1.TextToRender("World Dimensions", "", 20, 110, function () {
         worldDimensionsText.text = "World Dimensions (w, h): (" + worldWidth + ", " + worldHeight + ")";
     });
+    var viewport = sceneGraph.getViewport();
+    var winText = new TextRenderer_1.TextToRender("Win Text", "", viewport.getWidth() * 2 / 5, viewport.getHeight() / 2, function () {
+        winText.text = "YOU WIN!!!";
+        winText.fontColor = "Red";
+        winText.fontSize = 100;
+    });
     var textRenderer = game.getRenderingSystem().getTextRenderer();
     textRenderer.addTextToRender(spritesInSceneText);
     textRenderer.addTextToRender(viewportText);
     textRenderer.addTextToRender(spritesInViewportText);
     textRenderer.addTextToRender(worldDimensionsText);
+    textRenderer.addTextToRender(winText);
     // AND START THE GAME LOOP
     game.start();
 });
@@ -160,7 +167,12 @@ var Game = function (_GameLoopTemplate_1$G) {
             visibleSprites = this.sceneGraph.scope();
             var viewport = this.sceneGraph.getViewport();
             // RENDER THE VISIBLE SET, WHICH SHOULD ALL BE RENDERABLE
-            this.renderingSystem.render(viewport, visibleLayers, visibleSprites);
+            this.renderingSystem.render(viewport, visibleLayers, visibleSprites, this.checkWin());
+        }
+    }, {
+        key: "checkWin",
+        value: function checkWin() {
+            return this.sceneGraph.checkWin();
         }
         /**
          * Updates the scene.
@@ -1703,14 +1715,23 @@ var TextRenderer = function () {
         }
     }, {
         key: "render",
-        value: function render() {
+        value: function render(isWin) {
             this.textCtx.clearRect(0, 0, this.textCanvas.width, this.textCanvas.height);
-            for (var i = 0; i < this.textToRender.length; i++) {
-                var textToRender = this.textToRender[i];
+            var textToRender;
+            if (isWin) {
+                textToRender = this.textToRender[this.textToRender.length - 1];
                 textToRender.update();
                 this.textCtx.font = "" + textToRender.fontSize + "px " + textToRender.fontFamily;
                 this.textCtx.fillStyle = textToRender.fontColor;
                 this.textCtx.fillText(textToRender.text, textToRender.x, textToRender.y);
+            } else {
+                for (var i = 0; i < this.textToRender.length - 1; i++) {
+                    textToRender = this.textToRender[i];
+                    textToRender.update();
+                    this.textCtx.font = "" + textToRender.fontSize + "px " + textToRender.fontFamily;
+                    this.textCtx.fillStyle = textToRender.fontColor;
+                    this.textCtx.fillText(textToRender.text, textToRender.x, textToRender.y);
+                }
             }
         }
     }]);
@@ -1945,15 +1966,17 @@ var WebGLGameRenderingSystem = function () {
         }
     }, {
         key: "render",
-        value: function render(viewport, tiledLayers, visibleSprites) {
+        value: function render(viewport, tiledLayers, visibleSprites, isWin) {
             // CLEAR THE CANVAS
             this.webGL.clear(this.webGL.COLOR_BUFFER_BIT | this.webGL.DEPTH_BUFFER_BIT);
-            // RENDER THE TILED LAYER FIRST
-            this.tiledLayerRenderer.render(this.webGL, viewport, tiledLayers);
-            // RENDER THE SPRITES ON ONE CANVAS
-            this.spriteRenderer.render(this.webGL, viewport, visibleSprites);
+            if (!isWin) {
+                // RENDER THE TILED LAYER FIRST
+                this.tiledLayerRenderer.render(this.webGL, viewport, tiledLayers);
+                // RENDER THE SPRITES ON ONE CANVAS
+                this.spriteRenderer.render(this.webGL, viewport, visibleSprites);
+            }
             // THEN THE TEXT ON ANOTHER OVERLAPPING CANVAS
-            this.textRenderer.render();
+            this.textRenderer.render(isWin);
         }
     }]);
 
@@ -2450,6 +2473,15 @@ var SceneGraph = function () {
          * funcation was called.
          */
 
+    }, {
+        key: "checkWin",
+        value: function checkWin() {
+            if (this.enemySprites.length === 0) {
+                return true;
+            } else {
+                return false;
+            }
+        }
     }, {
         key: "update",
         value: function update(delta) {

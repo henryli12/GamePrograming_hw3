@@ -69,7 +69,11 @@ export class Game extends GameLoopTemplate {
         let viewport : Viewport = this.sceneGraph.getViewport();
 
         // RENDER THE VISIBLE SET, WHICH SHOULD ALL BE RENDERABLE
-        this.renderingSystem.render(viewport, visibleLayers, visibleSprites);
+        this.renderingSystem.render(viewport, visibleLayers, visibleSprites, this.checkWin());
+    }
+
+    public checkWin() : boolean{
+        return this.sceneGraph.checkWin();
     }
 
     /**
