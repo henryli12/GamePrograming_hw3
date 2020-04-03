@@ -10,6 +10,8 @@ export class SceneGraph {
     // ARE SCENE OBJECTS
     private animatedSprites : Array<AnimatedSprite>;
     private mainSprite : AnimatedSprite;
+    private enemySprites : Array<AnimatedSprite>;
+    private patrolSprites : Array<AnimatedSprite>;
 
     // SET OF VISIBLE OBJECTS, NOTE THAT AT THE MOMENT OUR
     // SCENE GRAPH IS QUITE SIMPLE, SO THIS IS THE SAME AS
@@ -32,6 +34,8 @@ export class SceneGraph {
 
     public clear() : void {
         this.animatedSprites = [];
+        this.enemySprites = [];
+        this.patrolSprites = [];
         this.visibleSet = [];
         this.tiledLayers = [];
         this.tileSets = [];
@@ -81,6 +85,31 @@ export class SceneGraph {
         this.animatedSprites.push(sprite);
     }
 
+    public addEnemy(sprite : AnimatedSprite) : void{
+        this.enemySprites.push(sprite);
+        this.animatedSprites.push(sprite);
+    }
+
+    public addPatrolSprite(sprite : AnimatedSprite) : void {
+        this.patrolSprites.push(sprite);
+        this.animatedSprites.push(sprite);
+    }
+    
+    public getEnemies() : Array<AnimatedSprite>{
+        return this.enemySprites;
+    }
+
+    public getPatrolSprites() : Array<AnimatedSprite>{
+        return this.patrolSprites;
+    }
+
+    public kill(sprite : AnimatedSprite) : void {
+        let index : number = this.animatedSprites.indexOf(sprite);
+        this.animatedSprites.splice(index, 1);
+        index = this.enemySprites.indexOf(sprite);
+        this.enemySprites.splice(index, 1);
+    }
+
     public setMainSprite(sprite : AnimatedSprite) : void {
         this.mainSprite = sprite;
         this.animatedSprites.push(sprite);
@@ -108,7 +137,7 @@ export class SceneGraph {
      */
     public update(delta : number) : void {
         for (let sprite of this.animatedSprites) {
-            sprite.update(delta);
+            sprite.update(delta, this);
         }
     }
 

@@ -40,7 +40,7 @@ game.getResourceManager().loadScene(DESERT_SCENE_PATH,
         let behavior : Behavior = new EnemyBehavior(randomSprite, worldWidth, worldHeight);
         randomSprite.setBehavior(behavior);
         randomSprite.getPosition().set(randomX, randomY, 0, 1);
-        game.getSceneGraph().addAnimatedSprite(randomSprite);
+        game.getSceneGraph().addEnemy(randomSprite);
     }
     for (let i = 0; i < 50; i++) {
         let type : AnimatedSpriteType = game.getResourceManager().getAnimatedSpriteType("CAMEL_SPIDER");
@@ -50,7 +50,7 @@ game.getResourceManager().loadScene(DESERT_SCENE_PATH,
         let behavior : Behavior = new PatrolBehavoir(randomSprite, worldWidth, worldHeight);
         randomSprite.setBehavior(behavior);
         randomSprite.getPosition().set(randomX, randomY, 0, 1);
-        game.getSceneGraph().addAnimatedSprite(randomSprite);
+        game.getSceneGraph().addPatrolSprite(randomSprite);
     }
     let type : AnimatedSpriteType = game.getResourceManager().getAnimatedSpriteType("MANTIS");
     let randomSprite : AnimatedSprite = new AnimatedSprite(type, "WALKING");

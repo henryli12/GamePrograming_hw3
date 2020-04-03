@@ -31,7 +31,6 @@ export class Behavior{
             this.sprite.getPosition().setX(newX);
             this.sprite.getPosition().setY(newY);
     }
-    public update(delta : number){
-
-    }
+    public update(delta : number){}
+    public collided(){}
 }

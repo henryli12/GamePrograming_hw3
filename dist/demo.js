@@ -34,7 +34,7 @@ game.getResourceManager().loadScene(DESERT_SCENE_PATH, game.getSceneGraph(), gam
         var _behavior = new EnemyBehavior_1.EnemyBehavior(_randomSprite, worldWidth, worldHeight);
         _randomSprite.setBehavior(_behavior);
         _randomSprite.getPosition().set(randomX, randomY, 0, 1);
-        game.getSceneGraph().addAnimatedSprite(_randomSprite);
+        game.getSceneGraph().addEnemy(_randomSprite);
     }
     for (var _i = 0; _i < 50; _i++) {
         var _type2 = game.getResourceManager().getAnimatedSpriteType("CAMEL_SPIDER");
@@ -44,7 +44,7 @@ game.getResourceManager().loadScene(DESERT_SCENE_PATH, game.getSceneGraph(), gam
         var _behavior2 = new PatrolBehavior_1.PatrolBehavoir(_randomSprite2, worldWidth, worldHeight);
         _randomSprite2.setBehavior(_behavior2);
         _randomSprite2.getPosition().set(_randomX, _randomY, 0, 1);
-        game.getSceneGraph().addAnimatedSprite(_randomSprite2);
+        game.getSceneGraph().addPatrolSprite(_randomSprite2);
     }
     var type = game.getResourceManager().getAnimatedSpriteType("MANTIS");
     var randomSprite = new AnimatedSprite_1.AnimatedSprite(type, "WALKING");
@@ -1592,6 +1592,32 @@ var GamePhysics = function () {
     }
 
     _createClass(GamePhysics, [{
+        key: "checkTouch",
+        value: function checkTouch(sprite, sceneGraph) {
+            var mainX = sprite.getPosition().getX() + 128 / 2;
+            var mainY = sprite.getPosition().getY() + 128 / 2;
+            var targets = sceneGraph.getEnemies();
+            var patrols = sceneGraph.getPatrolSprites();
+            for (var i = 0; i < targets.length; i++) {
+                var target = targets[i];
+                var targetX = target.getPosition().getX() + 128 / 2;
+                var targetY = target.getPosition().getY() + 128 / 2;
+                var dist = Math.sqrt(Math.pow(targetX - mainX, 2) + Math.pow(targetY - mainY, 2));
+                if (dist < 128) {
+                    target.collided();
+                }
+            }
+            for (var _i = 0; _i < patrols.length; _i++) {
+                var patrol = patrols[_i];
+                var patrolX = patrol.getPosition().getX() + 128 / 2;
+                var patrolY = patrol.getPosition().getY() + 128 / 2;
+                var _dist = Math.sqrt(Math.pow(patrolX - mainX, 2) + Math.pow(patrolY - mainY, 2));
+                if (_dist < 128) {
+                    patrol.collided();
+                }
+            }
+        }
+    }, {
         key: "update",
         value: function update(sceneGraph) {
             // UPDATE ALL OBJECT POSITIONS ACCORDING TO THEIR VELOCITIES
@@ -1599,7 +1625,7 @@ var GamePhysics = function () {
             // NOTE, FOR THIS YOU SHOULD MAKE SURE EACH SCENE OBJECT
             // HAS A BOUNDING VOLUME LIKE EITHER AN AABB OR A CIRCLE
             var main = sceneGraph.getMainSprite();
-            // console.log(main.getPosition());
+            this.checkTouch(main, sceneGraph);
         }
     }]);
 
@@ -2282,6 +2308,8 @@ var SceneGraph = function () {
         key: "clear",
         value: function clear() {
             this.animatedSprites = [];
+            this.enemySprites = [];
+            this.patrolSprites = [];
             this.visibleSet = [];
             this.tiledLayers = [];
             this.tileSets = [];
@@ -2340,6 +2368,36 @@ var SceneGraph = function () {
         key: "addAnimatedSprite",
         value: function addAnimatedSprite(sprite) {
             this.animatedSprites.push(sprite);
+        }
+    }, {
+        key: "addEnemy",
+        value: function addEnemy(sprite) {
+            this.enemySprites.push(sprite);
+            this.animatedSprites.push(sprite);
+        }
+    }, {
+        key: "addPatrolSprite",
+        value: function addPatrolSprite(sprite) {
+            this.patrolSprites.push(sprite);
+            this.animatedSprites.push(sprite);
+        }
+    }, {
+        key: "getEnemies",
+        value: function getEnemies() {
+            return this.enemySprites;
+        }
+    }, {
+        key: "getPatrolSprites",
+        value: function getPatrolSprites() {
+            return this.patrolSprites;
+        }
+    }, {
+        key: "kill",
+        value: function kill(sprite) {
+            var index = this.animatedSprites.indexOf(sprite);
+            this.animatedSprites.splice(index, 1);
+            index = this.enemySprites.indexOf(sprite);
+            this.enemySprites.splice(index, 1);
         }
     }, {
         key: "setMainSprite",
@@ -2403,7 +2461,7 @@ var SceneGraph = function () {
                 for (var _iterator2 = this.animatedSprites[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
                     var sprite = _step2.value;
 
-                    sprite.update(delta);
+                    sprite.update(delta, this);
                 }
             } catch (err) {
                 _didIteratorError2 = true;
@@ -2668,6 +2726,11 @@ var AnimatedSprite = function (_SceneObject_1$SceneO) {
             this.frameCounter = 0;
         }
     }, {
+        key: "collided",
+        value: function collided() {
+            this.behavior.collided();
+        }
+    }, {
         key: "randomAngle",
         value: function randomAngle() {
             this.angle = Math.random() * 2 * Math.PI;
@@ -2679,7 +2742,7 @@ var AnimatedSprite = function (_SceneObject_1$SceneO) {
         }
     }, {
         key: "update",
-        value: function update(delta) {
+        value: function update(delta, sceneGraph) {
             this.frameCounter++;
             this.behavior.update(delta);
             // HAVE WE GONE PAST THE LAST FRAME IN THE ANIMATION?
@@ -2688,6 +2751,9 @@ var AnimatedSprite = function (_SceneObject_1$SceneO) {
             if (this.frameCounter > currentFrame.duration) {
                 this.animationFrameIndex++;
                 if (this.animationFrameIndex >= currentAnimation.length) {
+                    if (this.state === "DYING") {
+                        sceneGraph.kill(this);
+                    }
                     this.animationFrameIndex = 0;
                 }
                 this.frameCounter = 0;
@@ -2863,6 +2929,9 @@ var Behavior = function () {
     }, {
         key: "update",
         value: function update(delta) {}
+    }, {
+        key: "collided",
+        value: function collided() {}
     }]);
 
     return Behavior;
@@ -2894,6 +2963,7 @@ var EnemyBehavior = function (_Behavior_1$Behavior) {
 
         _this.speed = 3;
         _this.moveLimit = Math.random() * 500 + 100;
+        _this.dying = false;
         return _this;
     }
 
@@ -2904,9 +2974,18 @@ var EnemyBehavior = function (_Behavior_1$Behavior) {
                 this.getSprite().randomAngle();
                 this.moveLimit = Math.random() * 500 + 100;
             }
-            // this.getSprite().move(this.speed);
             this.move(this.speed);
             this.moveLimit -= 1;
+        }
+    }, {
+        key: "collided",
+        value: function collided() {
+            var sprite = this.getSprite();
+            if (!this.dying) {
+                this.dying = true;
+                sprite.setState("DYING");
+                sprite.setAngle(1000);
+            }
         }
     }]);
 
@@ -3006,11 +3085,31 @@ var PatrolBehavoir = function (_Behavior_1$Behavior) {
 
         var _this = _possibleConstructorReturn(this, (PatrolBehavoir.__proto__ || Object.getPrototypeOf(PatrolBehavoir)).call(this, sprite, x, y));
 
-        _this.speed = 3;
+        _this.speed = 5;
+        _this.backing = false;
         return _this;
     }
 
     _createClass(PatrolBehavoir, [{
+        key: "collided",
+        value: function collided() {
+            var _this2 = this;
+
+            var sprite = this.getSprite();
+            if (!this.backing) {
+                this.backing = true;
+                var ang = sprite.getAngle();
+                sprite.setAngle(ang + Math.PI);
+                var back = function back(delay) {
+                    setTimeout(function () {
+                        sprite.setAngle(ang);
+                        _this2.backing = false;
+                    }, delay);
+                };
+                back(2000);
+            }
+        }
+    }, {
         key: "update",
         value: function update(delta) {
             this.move(this.speed);

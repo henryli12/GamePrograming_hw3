@@ -4,6 +4,7 @@ import { PatrolBehavoir } from './PatrolBehavior';
 import {Behavior} from './Behavior';
 import { MainCharacterBehavior } from './MainCharacterBehavior';
 import {EnemyBehavior} from './EnemyBehavior';
+import { SceneGraph } from '../SceneGraph';
 
 export class AnimatedSprite extends SceneObject {
     private spriteType : AnimatedSpriteType;
@@ -14,6 +15,7 @@ export class AnimatedSprite extends SceneObject {
     private targetX : number;
     private targetY : number;
     private behavior : Behavior;
+
     
     public constructor(initSpriteType : AnimatedSpriteType, initState : string) {
         super();
@@ -27,6 +29,7 @@ export class AnimatedSprite extends SceneObject {
         this.targetX = -1;
         this.targetY = -1;
         this.randomAngle();
+
     }
 
     public getAnimationFrameIndex() : number {
@@ -71,6 +74,10 @@ export class AnimatedSprite extends SceneObject {
         this.animationFrameIndex = 0;
         this.frameCounter = 0;
     }
+   
+    public collided() : void {
+        this.behavior.collided();
+    }
     
     public randomAngle() : void {
         this.angle = Math.random() * 2 * Math.PI;
@@ -80,7 +87,7 @@ export class AnimatedSprite extends SceneObject {
         this.behavior = behavior;
     }
 
-    public update(delta : number) : void {
+    public update(delta : number, sceneGraph : SceneGraph) : void {
         this.frameCounter++;
 
         this.behavior.update(delta);
@@ -91,6 +98,9 @@ export class AnimatedSprite extends SceneObject {
         if (this.frameCounter > (currentFrame.duration)) {
             this.animationFrameIndex++;
             if (this.animationFrameIndex >= currentAnimation.length) {
+                if(this.state === "DYING"){
+                    sceneGraph.kill(this);
+                }
                 this.animationFrameIndex = 0;
             }
             this.frameCounter = 0;
