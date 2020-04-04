@@ -15,7 +15,7 @@ export class Behavior{
     
     public move(speed : number) : void {
             let angle = this.sprite.getAngle()
-            if(angle === 1000){
+            if(angle === -1){
                 return;
             }
             let deltay = Math.sin(angle);

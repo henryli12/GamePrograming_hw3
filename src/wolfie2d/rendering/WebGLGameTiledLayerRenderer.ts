@@ -57,5 +57,14 @@ export class WebGLGameTiledLayerRenderer extends WebGLGameRenderingComponent {
         viewport : Viewport,
         tiledLayer: TiledLayer) {
             // YOU'LL NEED TO DEFINE THIS METHOD
+        
+        let canvasWidth : number = webGL.canvas.width;
+        let canvasHeight : number = webGL.canvas.height;
+        let texture : WebGLGameTexture = tiledLayer.getTileSet().getTexture();
+
+        let viewportX : number = viewport.getX();
+        let viewportY : number = viewport.getY();
+
+        
     }
 }

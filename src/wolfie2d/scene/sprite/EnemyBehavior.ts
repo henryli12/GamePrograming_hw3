@@ -34,7 +34,7 @@ export class EnemyBehavior extends Behavior{
         if(!this.dying){
             this.dying = true;
             sprite.setState("DYING");
-            sprite.setAngle(1000);
+            sprite.setAngle(-1);
         }
     }
 }

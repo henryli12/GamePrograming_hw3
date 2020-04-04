@@ -30,6 +30,9 @@ game.getResourceManager().loadScene(DESERT_SCENE_PATH,
     // ADD ANY CUSTOM STUFF WE NEED HERE, LIKE TEXT RENDERING
     // LET'S ADD A BUNCH OF RANDOM SPRITES
     let world : TiledLayer[] = game.getSceneGraph().getTiledLayers();
+    for (let tiledLayer of world) {
+        console.log(tiledLayer);
+    }
     let worldWidth : number = world[0].getColumns() * world[0].getTileSet().getTileWidth();
     let worldHeight : number = world[0].getRows() * world[0].getTileSet().getTileHeight();
     for (let i = 0; i < 50; i++) {

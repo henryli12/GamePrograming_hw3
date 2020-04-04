@@ -24,6 +24,31 @@ game.getResourceManager().loadScene(DESERT_SCENE_PATH, game.getSceneGraph(), gam
     // ADD ANY CUSTOM STUFF WE NEED HERE, LIKE TEXT RENDERING
     // LET'S ADD A BUNCH OF RANDOM SPRITES
     var world = game.getSceneGraph().getTiledLayers();
+    var _iteratorNormalCompletion = true;
+    var _didIteratorError = false;
+    var _iteratorError = undefined;
+
+    try {
+        for (var _iterator = world[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+            var tiledLayer = _step.value;
+
+            console.log(tiledLayer);
+        }
+    } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+    } finally {
+        try {
+            if (!_iteratorNormalCompletion && _iterator.return) {
+                _iterator.return();
+            }
+        } finally {
+            if (_didIteratorError) {
+                throw _iteratorError;
+            }
+        }
+    }
+
     var worldWidth = world[0].getColumns() * world[0].getTileSet().getTileWidth();
     var worldHeight = world[0].getRows() * world[0].getTileSet().getTileHeight();
     for (var i = 0; i < 50; i++) {
@@ -2157,7 +2182,7 @@ var WebGLGameSpriteRenderer = function (_WebGLGameRenderingCo) {
             var defaultHeight = canvasHeight;
             var scaleX = 2 * spriteWidth / defaultWidth;
             var scaleY = 2 * spriteHeight / defaultHeight;
-            this.meshScale.set(scaleX, scaleY, 0.0, 0.0); //1.0, 1.0);
+            this.meshScale.set(scaleX, scaleY / (1.50 + Math.sin(sprite.getAngle() * Math.PI / 180)), 0.0, 0.0); //1.0, 1.0);
             // @todo - COMBINE THIS WITH THE ROTATE AND SCALE VALUES FROM THE SPRITE
             MathUtilities_1.MathUtilities.identity(this.meshTransform);
             MathUtilities_1.MathUtilities.model(this.meshTransform, this.meshTranslate, this.meshRotate, this.meshScale);
@@ -2302,6 +2327,11 @@ var WebGLGameTiledLayerRenderer = function (_WebGLGameRenderingCo) {
         key: "renderTiledLayer",
         value: function renderTiledLayer(webGL, viewport, tiledLayer) {
             // YOU'LL NEED TO DEFINE THIS METHOD
+            var canvasWidth = webGL.canvas.width;
+            var canvasHeight = webGL.canvas.height;
+            var texture = tiledLayer.getTileSet().getTexture();
+            var viewportX = viewport.getX();
+            var viewportY = viewport.getY();
         }
     }]);
 
@@ -2942,7 +2972,7 @@ var Behavior = function () {
         key: "move",
         value: function move(speed) {
             var angle = this.sprite.getAngle();
-            if (angle === 1000) {
+            if (angle === -1) {
                 return;
             }
             var deltay = Math.sin(angle);
@@ -3025,7 +3055,7 @@ var EnemyBehavior = function (_Behavior_1$Behavior) {
             if (!this.dying) {
                 this.dying = true;
                 sprite.setState("DYING");
-                sprite.setAngle(1000);
+                sprite.setAngle(-1);
             }
         }
     }]);
