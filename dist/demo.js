@@ -3446,7 +3446,6 @@ var UIController = function UIController(canvasId, initScene) {
         var mainX = main.getTargetX();
         var mainY = main.getTargetY();
         if (event.keyCode == 65) {
-            console.log('left');
             var newX = x - 10;
             if (vwidth >= worldWidth) {
                 return;
@@ -3458,7 +3457,6 @@ var UIController = function UIController(canvasId, initScene) {
                 main.setTarget(mainX - 10, mainY);
             }
         } else if (event.keyCode == 83) {
-            console.log('down');
             var newY = y + 10;
             if (newY > maxY) {
                 viewport.setPosition(x, maxY);
@@ -3467,7 +3465,6 @@ var UIController = function UIController(canvasId, initScene) {
                 main.setTarget(mainX, mainY + 10);
             }
         } else if (event.keyCode == 68) {
-            console.log('right');
             var _newX = x + 10;
             if (vwidth >= worldWidth) {
                 return;
@@ -3479,7 +3476,6 @@ var UIController = function UIController(canvasId, initScene) {
                 main.setTarget(mainX + 10, mainY);
             }
         } else if (event.keyCode == 87) {
-            console.log('up');
             var _newY = y - 10;
             if (_newY < 0) {
                 viewport.setPosition(x, 0);

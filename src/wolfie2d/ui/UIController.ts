@@ -89,7 +89,6 @@ export class UIController {
         let mainY = main.getTargetY();
 
         if (event.keyCode == 65){
-            console.log('left')
             let newX = x - 10;
             if(vwidth >= worldWidth){
                 return;
@@ -101,7 +100,6 @@ export class UIController {
                 main.setTarget(mainX - 10, mainY);
             }
         }else if (event.keyCode == 83){
-            console.log('down');
             let newY = y + 10;
             if(newY > maxY){
                 viewport.setPosition(x, maxY);
@@ -110,7 +108,6 @@ export class UIController {
                 main.setTarget(mainX , mainY + 10);
             }
         }else if (event.keyCode == 68){
-            console.log('right');
             let newX = x + 10;
             if(vwidth >= worldWidth){
                 return;
@@ -122,7 +119,6 @@ export class UIController {
                 main.setTarget(mainX + 10, mainY);
             }
         }else if (event.keyCode == 87){
-            console.log('up');
             let newY = y - 10;
             if(newY < 0){
                 viewport.setPosition(x, 0);
