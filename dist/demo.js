@@ -2176,13 +2176,14 @@ var WebGLGameSpriteRenderer = function (_WebGLGameRenderingCo) {
             var spriteYTranslate = (spriteYInPixels - canvasHeight / 2) / (canvasHeight / 2);
             this.meshTranslate.setX(spriteXTranslate);
             this.meshTranslate.setY(-spriteYTranslate);
-            this.meshRotate.setZ((sprite.getAngle() + Math.PI / 2) * -1);
+            var angle = (sprite.getAngle() + Math.PI / 2) % (2 * Math.PI);
+            this.meshRotate.setZ(angle * -1);
             // CALCULATE HOW MUCH TO SCALE THE QUAD PER THE SPRITE SIZE
             var defaultWidth = canvasWidth;
             var defaultHeight = canvasHeight;
             var scaleX = 2 * spriteWidth / defaultWidth;
             var scaleY = 2 * spriteHeight / defaultHeight;
-            this.meshScale.set(scaleX * (1 + Math.abs(Math.sin(sprite.getAngle() + Math.PI / 2))), scaleY / (1 + Math.abs(Math.sin(sprite.getAngle() + Math.PI / 2))), 0.0, 0.0); //1.0, 1.0);
+            this.meshScale.set(scaleX * (1 + Math.abs(Math.sin(angle))), scaleY / (1 + Math.abs(Math.sin(angle))), 0.0, 0.0); //1.0, 1.0);
             // @todo - COMBINE THIS WITH THE ROTATE AND SCALE VALUES FROM THE SPRITE
             MathUtilities_1.MathUtilities.identity(this.meshTransform);
             MathUtilities_1.MathUtilities.model(this.meshTransform, this.meshTranslate, this.meshRotate, this.meshScale);
