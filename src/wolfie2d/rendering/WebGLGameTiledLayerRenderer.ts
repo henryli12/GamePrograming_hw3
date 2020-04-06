@@ -30,12 +30,12 @@ export class WebGLGameTiledLayerRenderer extends WebGLGameRenderingComponent {
 
     public getShaderAttributeNames(): string[] {
         // YOU'LL NEED TO DEFINE THIS METHOD
-        return [];
+        return [this.A_POSITION, this.A_TEX_COORD];
     }
 
     public getShaderUniformNames(): string[] {
         // YOU'LL NEED TO DEFINE THIS METHOD
-        return [];
+        return [this.U_MESH_TRANSFORM, this.U_SAMPLER];
     }
 
     public render(  webGL: WebGLRenderingContext,
@@ -65,6 +65,27 @@ export class WebGLGameTiledLayerRenderer extends WebGLGameRenderingComponent {
         let viewportX : number = viewport.getX();
         let viewportY : number = viewport.getY();
 
+        let tileWidth : number = texture.width;
+        let tileHeight : number = texture.height;
         
+        MathUtilities.identity(this.meshTransform);
+
+        webGL.bindBuffer(webGL.ARRAY_BUFFER, this.vertexDataBuffer);
+        webGL.bindTexture(webGL.TEXTURE_2D, texture.webGLTexture);
+
+        let a_PositionLocation : GLuint = this.webGLAttributeLocations.get(this.A_POSITION);
+        webGL.vertexAttribPointer(a_PositionLocation, this.FLOATS_PER_TEXTURE_COORDINATE, webGL.FLOAT, false, this.TOTAL_BYTES, this.VERTEX_POSITION_OFFSET);
+        webGL.enableVertexAttribArray(a_PositionLocation);
+        let a_TexCoordLocation : GLuint = this.webGLAttributeLocations.get(this.A_TEX_COORD);
+        webGL.vertexAttribPointer(a_TexCoordLocation, this.FLOATS_PER_TEXTURE_COORDINATE, webGL.FLOAT, false, this.TOTAL_BYTES, this.TEXTURE_COORDINATE_OFFSET);
+        webGL.enableVertexAttribArray(a_TexCoordLocation);
+
+        let u_MeshTransformLocation : WebGLUniformLocation = this.webGLUniformLocations.get(this.U_MESH_TRANSFORM);
+        webGL.uniformMatrix4fv(u_MeshTransformLocation, false, this.meshTransform.getData());
+        let u_SamplerLocation : WebGLUniformLocation = this.webGLUniformLocations.get(this.U_SAMPLER);
+        webGL.uniform1i(u_SamplerLocation, texture.webGLTextureId);
+
+        webGL.drawArrays(webGL.TRIANGLE_STRIP, this.INDEX_OF_FIRST_VERTEX, this.NUM_VERTICES);
+
     }
 }

@@ -62,14 +62,14 @@ export class WebGLGameSpriteRenderer extends WebGLGameRenderingComponent {
         let spriteYTranslate : number = (spriteYInPixels - (canvasHeight/2))/(canvasHeight/2);
         this.meshTranslate.setX(spriteXTranslate);
         this.meshTranslate.setY(-spriteYTranslate);
-        this.meshRotate.setZ((sprite.getAngle() + (Math.PI / 2)) * -1 );
+        this.meshRotate.setZ((sprite.getAngle() + Math.PI / 2) * -1 );
 
         // CALCULATE HOW MUCH TO SCALE THE QUAD PER THE SPRITE SIZE
         let defaultWidth : number = canvasWidth;
         let defaultHeight : number = canvasHeight;
         let scaleX : number = 2*spriteWidth/defaultWidth;
         let scaleY : number = 2*spriteHeight/defaultHeight;
-        this.meshScale.set(scaleX , scaleY / (1.50 + Math.sin(sprite.getAngle() * Math.PI / 180)), 0.0, 0.0);//1.0, 1.0);
+        this.meshScale.set(scaleX * (1 + Math.abs(Math.sin(sprite.getAngle()+ Math.PI / 2))), scaleY / (1 + Math.abs(Math.sin(sprite.getAngle()+ Math.PI / 2))), 0.0, 0.0);//1.0, 1.0);
 
         // @todo - COMBINE THIS WITH THE ROTATE AND SCALE VALUES FROM THE SPRITE
         MathUtilities.identity(this.meshTransform);

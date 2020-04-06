@@ -2182,7 +2182,7 @@ var WebGLGameSpriteRenderer = function (_WebGLGameRenderingCo) {
             var defaultHeight = canvasHeight;
             var scaleX = 2 * spriteWidth / defaultWidth;
             var scaleY = 2 * spriteHeight / defaultHeight;
-            this.meshScale.set(scaleX, scaleY / (1.50 + Math.sin(sprite.getAngle() * Math.PI / 180)), 0.0, 0.0); //1.0, 1.0);
+            this.meshScale.set(scaleX * (1 + Math.abs(Math.sin(sprite.getAngle() + Math.PI / 2))), scaleY / (1 + Math.abs(Math.sin(sprite.getAngle() + Math.PI / 2))), 0.0, 0.0); //1.0, 1.0);
             // @todo - COMBINE THIS WITH THE ROTATE AND SCALE VALUES FROM THE SPRITE
             MathUtilities_1.MathUtilities.identity(this.meshTransform);
             MathUtilities_1.MathUtilities.model(this.meshTransform, this.meshTranslate, this.meshRotate, this.meshScale);
@@ -2247,6 +2247,7 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 Object.defineProperty(exports, "__esModule", { value: true });
+var MathUtilities_1 = require("../math/MathUtilities");
 var WebGLGameRenderingComponent_1 = require("./WebGLGameRenderingComponent");
 
 var WebGLGameTiledLayerRenderer = function (_WebGLGameRenderingCo) {
@@ -2283,13 +2284,13 @@ var WebGLGameTiledLayerRenderer = function (_WebGLGameRenderingCo) {
         key: "getShaderAttributeNames",
         value: function getShaderAttributeNames() {
             // YOU'LL NEED TO DEFINE THIS METHOD
-            return [];
+            return [this.A_POSITION, this.A_TEX_COORD];
         }
     }, {
         key: "getShaderUniformNames",
         value: function getShaderUniformNames() {
             // YOU'LL NEED TO DEFINE THIS METHOD
-            return [];
+            return [this.U_MESH_TRANSFORM, this.U_SAMPLER];
         }
     }, {
         key: "render",
@@ -2332,6 +2333,22 @@ var WebGLGameTiledLayerRenderer = function (_WebGLGameRenderingCo) {
             var texture = tiledLayer.getTileSet().getTexture();
             var viewportX = viewport.getX();
             var viewportY = viewport.getY();
+            var tileWidth = texture.width;
+            var tileHeight = texture.height;
+            MathUtilities_1.MathUtilities.identity(this.meshTransform);
+            webGL.bindBuffer(webGL.ARRAY_BUFFER, this.vertexDataBuffer);
+            webGL.bindTexture(webGL.TEXTURE_2D, texture.webGLTexture);
+            var a_PositionLocation = this.webGLAttributeLocations.get(this.A_POSITION);
+            webGL.vertexAttribPointer(a_PositionLocation, this.FLOATS_PER_TEXTURE_COORDINATE, webGL.FLOAT, false, this.TOTAL_BYTES, this.VERTEX_POSITION_OFFSET);
+            webGL.enableVertexAttribArray(a_PositionLocation);
+            var a_TexCoordLocation = this.webGLAttributeLocations.get(this.A_TEX_COORD);
+            webGL.vertexAttribPointer(a_TexCoordLocation, this.FLOATS_PER_TEXTURE_COORDINATE, webGL.FLOAT, false, this.TOTAL_BYTES, this.TEXTURE_COORDINATE_OFFSET);
+            webGL.enableVertexAttribArray(a_TexCoordLocation);
+            var u_MeshTransformLocation = this.webGLUniformLocations.get(this.U_MESH_TRANSFORM);
+            webGL.uniformMatrix4fv(u_MeshTransformLocation, false, this.meshTransform.getData());
+            var u_SamplerLocation = this.webGLUniformLocations.get(this.U_SAMPLER);
+            webGL.uniform1i(u_SamplerLocation, texture.webGLTextureId);
+            webGL.drawArrays(webGL.TRIANGLE_STRIP, this.INDEX_OF_FIRST_VERTEX, this.NUM_VERTICES);
         }
     }]);
 
@@ -2340,7 +2357,7 @@ var WebGLGameTiledLayerRenderer = function (_WebGLGameRenderingCo) {
 
 exports.WebGLGameTiledLayerRenderer = WebGLGameTiledLayerRenderer;
 
-},{"./WebGLGameRenderingComponent":10}],16:[function(require,module,exports){
+},{"../math/MathUtilities":5,"./WebGLGameRenderingComponent":10}],16:[function(require,module,exports){
 "use strict";
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
