@@ -9,12 +9,9 @@
     "spriteTypePaths" : [
         {"name":"MULTI_COLOR_BLOCK", "path" : "resources/animated_sprites/MultiColorBlock/MultiColorBlock.json"},
         {"name":"RED_CIRCLE_MAN", "path" : "resources/animated_sprites/RedCircleMan/RedCircleMan.json" },
-        {"name":"LADY_BUG", "path" : "resources/animated_sprites/LadyBug/LadyBug.json"},
         {"name":"CAMEL_SPIDER", "path" : "resources/animated_sprites/CamelSpider/CamelSpider.json"},
-        {"name":"PILL_BUG", "path" : "resources/animated_sprites/PillBug/PillBug.json"},
-        {"name":"WASP", "path" : "resources/animated_sprites/Wasp/Wasp.json"},
-        {"name":"MANTIS", "path" : "resources/animated_sprites/Mantis/Mantis.json"},
-        {"name":"STICK_BUG", "path" : "resources/animated_sprites/StickBug/StickBug.json"}
+        {"name":"STICK_BUG", "path" : "resources/animated_sprites/StickBug/StickBug.json"},
+        {"name":"ANT", "path" : "resources/animated_sprites/Ant/Ant.json"}
 
     ]
 }

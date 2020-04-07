@@ -71,7 +71,7 @@ game.getResourceManager().loadScene(DESERT_SCENE_PATH, game.getSceneGraph(), gam
         _randomSprite2.getPosition().set(_randomX, _randomY, 0, 1);
         game.getSceneGraph().addPatrolSprite(_randomSprite2);
     }
-    var type = game.getResourceManager().getAnimatedSpriteType("MANTIS");
+    var type = game.getResourceManager().getAnimatedSpriteType("ANT");
     var randomSprite = new AnimatedSprite_1.AnimatedSprite(type, "WALKING");
     var behavior = new MainCharacterBehavior_1.MainCharacterBehavior(randomSprite, worldWidth, worldHeight);
     randomSprite.setBehavior(behavior);
